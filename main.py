@@ -67,10 +67,21 @@ class Tetromino:
         self.y = 0
 
     def rotate(self):
-        # Перемещаем матрицу (меняем строки и столбцы местами)
+        prev_shape = self.shape
         self.shape = [list(row) for row in zip(*self.shape)]
-        # Отражаем матрицу по вертикали (поворот на 90 градусов)
         self.shape = [row[::-1] for row in self.shape]
+        if not self.valid_space_after_rotation():
+            self.shape = prev_shape
+
+    def valid_space_after_rotation(self):
+        # Проверяем, не выходит ли фигура за границы после поворота
+        for y, row in enumerate(self.shape):
+            for x, cell in enumerate(row):
+                if cell:
+                    if (self.x + x < 0 or self.x + x >= GRID_WIDTH // BLOCK_SIZE or
+                            self.y + y >= GRID_HEIGHT // BLOCK_SIZE):
+                        return False
+        return True
 
     def get_shape(self):
         return self.shape
