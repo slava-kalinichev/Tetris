@@ -145,7 +145,7 @@ def clear_rows(grid, locked_positions, current_tetromino):
 
     return cleared_rows
 
-def show_game_over_dialog():
+def show_game_over_dialog():  # Диалоговое окно завершения игры
     mainsfx_sound.play()
     root = tk.Tk()
     root.withdraw()  # Скрываем основное окно tkinter
