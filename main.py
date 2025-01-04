@@ -48,15 +48,49 @@ game_over_sound = pygame.mixer.Sound("08 Game Over.mp3")  # Звук пораж�
 mainsfx_sound = pygame.mixer.Sound("19 SFX.mp3")  # Тема
 
 # Формы фигур
-SHAPES = [
-    [[1, 1, 1, 1]],  # I-образная фигура
-    [[1, 1], [1, 1]],  # O-образная фигура
-    [[1, 1, 0], [0, 1, 1]],  # Z-образная фигура
-    [[0, 1, 1], [1, 1, 0]],  # S-образная фигура
-    [[1, 1, 1], [0, 1, 0]],  # T-образная фигура
-    [[1, 1, 1], [1, 0, 0]],  # L-образная фигура
-    [[1, 1, 1], [0, 0, 1]]   # J-образная фигура
-]
+# В виде словаря, чтобы удобнее пользоваться фигурами
+# Изменено для матричного представления отображения поворота
+SHAPES = {
+    'I-shape': [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ],
+    'L-shape': [
+        [1, 0, 0],
+        [1, 1, 1],
+        [0, 0, 0]
+    ],
+    'reverse-L-shape': [
+        [0, 0, 1],
+        [1, 1, 1],
+        [0, 0, 0]
+    ],
+    'square-shape': [
+        [1, 1],
+        [1, 1]
+    ],
+    '2-2-shape': [
+        [0, 1, 1],
+        [1, 1, 0],
+        [0, 0, 0]
+    ],
+    'reverse-2-2-shape': [
+        [1, 1, 0],
+        [0, 1, 1],
+        [0, 0, 0]
+    ],
+    'triangle-shape': [
+        [0, 1, 0],
+        [1, 1, 1],
+        [0, 0, 0]
+    ]
+}
+
+def get_random_shape():
+    return SHAPES[random.choice(list(SHAPES.keys()))]
+
 
 class Tetromino:
     def __init__(self, shape):
@@ -86,7 +120,10 @@ class Tetromino:
     def get_shape(self):
         return self.shape
 
-def create_grid(locked_positions={}):
+def create_grid(locked_positions=None):
+    if locked_positions is None:
+        locked_positions = {}
+
     grid = [[BLACK for _ in range(GRID_WIDTH // BLOCK_SIZE)] for _ in range(GRID_HEIGHT // BLOCK_SIZE)]
     for y in range(len(grid)):
         for x in range(len(grid[y])):
@@ -201,8 +238,8 @@ def main():
     while True:
         locked_positions = {}
         grid = create_grid(locked_positions)
-        current_tetromino = Tetromino(random.choice(SHAPES))
-        next_tetromino = Tetromino(random.choice(SHAPES))
+        current_tetromino = Tetromino(get_random_shape())
+        next_tetromino = Tetromino(get_random_shape())
         fall_time = 0
         fall_speed = 0.4
         score = 0
@@ -234,7 +271,7 @@ def main():
                                 if cell:
                                     locked_positions[(current_tetromino.x + x, current_tetromino.y + y)] = current_tetromino.color
                         current_tetromino = next_tetromino
-                        next_tetromino = Tetromino(random.choice(SHAPES))
+                        next_tetromino = Tetromino(get_random_shape())
                         if not valid_space(current_tetromino, grid):
                             game_over = True
                             game_over_animation(grid)  # Запуск анимации поражения
