@@ -5,10 +5,13 @@ pygame.init()
 # Строковые значения
 GAME_NAME = "Тетрис"
 INSTRUCTIONS = [
-        "↑ PgUp  - Rotate",
-        "↓ PgDn  - Speed Up",
-        "← Home  - Move Left",
-        "→ End  - Move Right"
+        "PgUp  - Rotate",
+        "PgDn  - Speed Up",
+        "Home  - Move Left",
+        "End  - Move Right",
+        "P  - Pause / Continue",  # P или пробел
+        "R  - Restart",
+        "Esc  - Exit"
 ]
 
 # Цвета
@@ -28,8 +31,17 @@ COLORS = [
 # Размеры игрового поля (10x20 клеток - стандарт оригинала)
 GRID_WIDTH = 300
 GRID_HEIGHT = 600
-INFO_WIDTH = 180  # Ширина области для инструкции
-FONT = pygame.font.SysFont("Calibri", 18) # Шрифт для инструкции
+INFO_WIDTH = 200  # Ширина области для инструкции
+
+# Шрифты
+font_base = pygame.font.Font("assets/1_MinecraftRegular1.otf", 20) # Шрифт
+font_score = pygame.font.Font("assets/1_MinecraftRegular1.otf", 24) # Шрифт для счета
+font_controls = pygame.font.Font("assets/1_MinecraftRegular1.otf", 16)
+font_title = pygame.font.Font("assets/1_MinecraftRegular1.otf", 40)
+font_level = pygame.font.Font("assets/1_MinecraftRegular1.otf", 30)
+font_start = pygame.font.Font("assets/1_MinecraftRegular1.otf", 35)
+font_pause = pygame.font.Font("assets/1_MinecraftRegular1.otf", 60)
+font_exit = pygame.font.Font("assets/1_MinecraftRegular1.otf", 25)
 
 SCREEN_WIDTH = GRID_WIDTH + INFO_WIDTH
 SCREEN_HEIGHT = GRID_HEIGHT
@@ -48,11 +60,40 @@ clear_sound = pygame.mixer.Sound("assets/07 Stage Clear.mp3")  # Звук уда
 game_over_sound = pygame.mixer.Sound("assets/08 Game Over.mp3")  # Звук поражения
 mainsfx_sound = pygame.mixer.Sound("assets/19 SFX.mp3")  # Тема
 
+# Файл со значением рекорда
+record_file = "assets/high_score.txt"
+
+# Начисление очков по уровням соответственно закрытым линиям
+POINTS = {1: [100, 300, 700, 1500],
+          2: [300, 500, 900, 1700],
+          3: [500, 700, 1100, 1900],
+          4: [700, 1000, 1500, 2400],
+          5: [900, 1200, 1700, 2600],
+          6: [1100, 1400, 1900, 2800],
+          7: [1300, 1700, 2300, 3300],
+          8: [1500, 1900, 2500, 3500],
+          9: [1700, 2100, 2700, 3700],
+          10: [1900, 2400, 3100, 4200],
+          }
+
+LEVEL_SPEEDS = {
+    1: 0.47,
+    2: 0.43,
+    3: 0.4,
+    4: 0.36,
+    5: 0.32,
+    6: 0.28,
+    7: 0.24,
+    8: 0.2,
+    9: 0.15,
+    10: 0.1
+}
+
 # Формы фигур
 # В виде словаря, чтобы удобнее пользоваться фигурами
 # Изменено для матричного представления отображения поворота
 SHAPES = {
-    'I-shape': [
+    'long-I-shape': [
         [0, 0, 0, 0],
         [1, 1, 1, 1],
         [0, 0, 0, 0],
@@ -86,5 +127,31 @@ SHAPES = {
         [0, 1, 0],
         [1, 1, 1],
         [0, 0, 0]
+    ],
+    'dote': [
+        [1]
+    ],
+    'short-I-shape': [
+        [0, 0, 0],
+        [1, 1, 1],
+        [0, 0, 0]
+    ],
+    'corner': [
+        [1, 0],
+        [1, 1]
+    ],
+    'cross': [
+        [0, 1, 0],
+        [1, 1, 1],
+        [0, 1, 0]
+    ],
+    'bridge': [
+        [0, 0, 0],
+        [1, 1, 1],
+        [1, 0, 1]
     ]
 }
+
+AVAILIBLE_SHAPES = {1: 7,
+                    4: 10,
+                    7: 12}
