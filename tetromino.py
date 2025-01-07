@@ -10,6 +10,10 @@ class Tetromino:
         self.x = GRID_WIDTH // BLOCK_SIZE // 2 - len(shape[0]) // 2
         self.y = 0
 
+        # При создании фигуры задаем случайную ротацию
+        for _ in range(random.randrange(4)):
+            self.rotate()
+
     def rotate(self):
         '''
         Поворачивает фигуру на 90 градусов по часовой стрелке.
@@ -54,3 +58,12 @@ class Tetromino:
 
     def get_shape(self):
         return self.shape
+
+
+class LockedTetromino(Tetromino):
+    def __init__(self, shape):
+        super().__init__(shape)
+        self.color = LOCKED_SHAPE_COLOR
+
+    def rotate(self):
+        pass

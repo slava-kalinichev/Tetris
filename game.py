@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import messagebox
 from values import *
 from scoreAnimation import *
-from tetromino import Tetromino
+from tetromino import Tetromino, LockedTetromino
 
 
 class Game:
@@ -56,7 +56,10 @@ class Game:
                     cell = row[x]
 
                     if cell:
-                        pygame.draw.rect(self.screen, tetromino.color, ((tetromino.x + x) * BLOCK_SIZE, (tetromino.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), 0)
+                        pygame.draw.rect(self.screen,
+                                         tetromino.color,
+                                         ((tetromino.x + x) * BLOCK_SIZE, (tetromino.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE),
+                                         0)
 
     def valid_space(self, tetromino, grid):
         shape = tetromino.get_shape()
@@ -187,14 +190,14 @@ class Game:
 
     # Функция для загрузки рекорда из файла
     def load_high_score(self):
-        if os.path.exists(record_file):
-            with open(record_file, 'r') as file:
+        if os.path.exists(RECORD_FILE):
+            with open(RECORD_FILE, 'r') as file:
                 return int(file.read())
         return 0  # Если файла нет, возвращаем 0
 
     # Функция для сохранения рекорда в файл
     def save_high_score(self, score):
-        with open(record_file, 'w') as file:
+        with open(RECORD_FILE, 'w') as file:
             file.write(str(score))
 
     def game_over_animation(self, grid):
@@ -293,13 +296,13 @@ class Game:
 
     def animate_button(self, button):
         pygame.draw.rect(self.screen, GRAY, button)
-        button_text = pygame.font.Font("assets/1_MinecraftRegular1.otf", 35).render("Start", True, BLACK)
+        button_text = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 35).render("Start", True, BLACK)
         self.screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, 320))
         pygame.display.update()
         pygame.time.delay(100)  # Задержка для анимации
 
         pygame.draw.rect(self.screen, BLACK, button)
-        button_text = pygame.font.Font("assets/1_MinecraftRegular1.otf", 35).render("Start", True, WHITE)
+        button_text = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 35).render("Start", True, WHITE)
         self.screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, 320))
         pygame.display.update()
         pygame.time.delay(100)  # Задержка для анимации
@@ -331,14 +334,16 @@ class Game:
             grid = self.create_grid(locked_positions)
 
             num_shapes = 8  # По умолчанию
-            for level, count in AVAILIBLE_SHAPES.items():
+            for level, count in AVAILABLE_SHAPES.items():
                 if selected_level >= level:
                     num_shapes = count
             # Срезаем словарь SHAPES до нужного количества фигур
             available_shapes = dict(list(SHAPES.items())[:num_shapes])
 
-            current_tetromino = Tetromino(self.get_random_shape(available_shapes))
-            next_tetromino = Tetromino(self.get_random_shape(available_shapes))
+            locked_shapes_chance = [Tetromino for _ in range(5)] + [LockedTetromino]
+
+            current_tetromino = random.choice(locked_shapes_chance)(self.get_random_shape(available_shapes))
+            next_tetromino = random.choice(locked_shapes_chance)(self.get_random_shape(available_shapes))
             fall_time = 0
             accelerated_fall_speed = 0.05
             score = 0
@@ -377,7 +382,7 @@ class Game:
                                         locked_positions[(current_tetromino.x + x, current_tetromino.y + y)] = current_tetromino.color
 
                             current_tetromino = next_tetromino
-                            next_tetromino = Tetromino(self.get_random_shape(available_shapes))
+                            next_tetromino = random.choice(locked_shapes_chance)(self.get_random_shape(available_shapes))
 
                             if not self.valid_space(current_tetromino, grid):
                                 game_over = True

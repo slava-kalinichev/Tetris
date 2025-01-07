@@ -11,7 +11,7 @@ class ScoreAnimation:
         self.max_speed = 0.5  # Максимальная скорость (быстро)
         self.acceleration = 0.01  # Ускорение
         self.font_size = 30  # Размер шрифта (постоянный)
-        self.font = pygame.font.Font("1_MinecraftRegular1.otf", self.font_size)  # Шрифт
+        self.font = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", self.font_size)  # Шрифт
         self.alpha = 255  # Прозрачность текста (255 = полностью видимый)
         self.active = True  # Активна ли анимация
         self.points_awarded = False  # Были ли очки уже начислены

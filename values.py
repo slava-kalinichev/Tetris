@@ -18,6 +18,7 @@ INSTRUCTIONS = [
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
+LOCKED_SHAPE_COLOR = (50, 50, 50)
 COLORS = [
     (0, 255, 255),
     (255, 255, 0),
@@ -34,14 +35,14 @@ GRID_HEIGHT = 600
 INFO_WIDTH = 200  # Ширина области для инструкции
 
 # Шрифты
-font_base = pygame.font.Font("assets/1_MinecraftRegular1.otf", 20) # Шрифт
-font_score = pygame.font.Font("assets/1_MinecraftRegular1.otf", 24) # Шрифт для счета
-font_controls = pygame.font.Font("assets/1_MinecraftRegular1.otf", 16)
-font_title = pygame.font.Font("assets/1_MinecraftRegular1.otf", 40)
-font_level = pygame.font.Font("assets/1_MinecraftRegular1.otf", 30)
-font_start = pygame.font.Font("assets/1_MinecraftRegular1.otf", 35)
-font_pause = pygame.font.Font("assets/1_MinecraftRegular1.otf", 60)
-font_exit = pygame.font.Font("assets/1_MinecraftRegular1.otf", 25)
+font_base = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 20) # Шрифт
+font_score = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 24) # Шрифт для счета
+font_controls = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 16)
+font_title = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 40)
+font_level = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 30)
+font_start = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 35)
+font_pause = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 60)
+font_exit = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 25)
 
 SCREEN_WIDTH = GRID_WIDTH + INFO_WIDTH
 SCREEN_HEIGHT = GRID_HEIGHT
@@ -52,16 +53,16 @@ FPS = 30
 
 # Звуки
 pygame.mixer.init()
-drop_sound = pygame.mixer.Sound("assets/02 Speed Up.mp3")  # Звук падения
-force_sound = pygame.mixer.Sound("assets/03 Force Hit.mp3") # Звук приземления блока
-move_sound = pygame.mixer.Sound("assets/05 Common.mp3")  # Звук движения
-rotate_sound = pygame.mixer.Sound("assets/05 Common.mp3")  # Звук поворота
-clear_sound = pygame.mixer.Sound("assets/07 Stage Clear.mp3")  # Звук удаления строки
-game_over_sound = pygame.mixer.Sound("assets/08 Game Over.mp3")  # Звук поражения
-mainsfx_sound = pygame.mixer.Sound("assets/19 SFX.mp3")  # Тема
+drop_sound = pygame.mixer.Sound("assets/SFX/02 Speed Up.mp3")  # Звук падения
+force_sound = pygame.mixer.Sound("assets/SFX/03 Force Hit.mp3") # Звук приземления блока
+move_sound = pygame.mixer.Sound("assets/SFX/05 Common.mp3")  # Звук движения
+rotate_sound = pygame.mixer.Sound("assets/SFX/05 Common.mp3")  # Звук поворота
+clear_sound = pygame.mixer.Sound("assets/SFX/07 Stage Clear.mp3")  # Звук удаления строки
+game_over_sound = pygame.mixer.Sound("assets/SFX/08 Game Over.mp3")  # Звук поражения
+mainsfx_sound = pygame.mixer.Sound("assets/SFX/19 SFX.mp3")  # Тема
 
 # Файл со значением рекорда
-record_file = "assets/high_score.txt"
+RECORD_FILE = "data/high_score.txt"
 
 # Начисление очков по уровням соответственно закрытым линиям
 POINTS = {1: [100, 300, 700, 1500],
@@ -128,7 +129,7 @@ SHAPES = {
         [1, 1, 1],
         [0, 0, 0]
     ],
-    'dote': [
+    'dot': [
         [1]
     ],
     'short-I-shape': [
@@ -152,6 +153,6 @@ SHAPES = {
     ]
 }
 
-AVAILIBLE_SHAPES = {1: 7,
+AVAILABLE_SHAPES = {1: 7,
                     4: 10,
                     7: 12}
