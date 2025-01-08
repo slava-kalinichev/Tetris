@@ -4,7 +4,7 @@ import time
 import tkinter as tk
 from tkinter import messagebox
 from values import *
-from scoreAnimation import *
+from score_animation import *
 from tetromino import Tetromino, LockedTetromino
 
 
@@ -20,9 +20,8 @@ class Game:
         # Частота кадров
         self.clock = pygame.time.Clock()
 
-    def get_random_shape(self, availible_shapes):
-        #return SHAPES['long-I-shape']  # Отладка
-        return SHAPES[random.choice(list(availible_shapes.keys()))]
+    def get_random_shape(self, available_shapes):
+        return SHAPES[random.choice(list(available_shapes.keys()))]
 
     def create_grid(self, locked_positions=None):
         if locked_positions is None:
@@ -554,6 +553,3 @@ class Game:
                     SCREEN_WIDTH // 2 - pause_text.get_width() // 2, SCREEN_HEIGHT // 2 - pause_text.get_height() // 2))
 
                 pygame.display.update()
-
-            controller = Game()
-            controller.game()
