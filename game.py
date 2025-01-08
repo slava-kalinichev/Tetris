@@ -9,8 +9,11 @@ from tetromino import Tetromino, LockedTetromino
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, level):
         pygame.init()
+        # TODO: рефактор кода: замена пробной версии ввода уровня, изменение сложности и условий победы в зависимости от выбора
+        self.level = level
+
         self.score_animations = []  # Список активных анимаций
 
         # Создание экрана
@@ -127,7 +130,7 @@ class Game:
 
         return result == "yes"'''
 
-    def draw_instructions(self, score, record, level, next_tetromino):
+    def draw_instructions(self, score, record, next_tetromino):
         x = GRID_WIDTH + 16  # Отступ от игрового поля
         y = 20  # Начальная позиция по вертикали
 
@@ -142,7 +145,7 @@ class Game:
         y += 40  # Увеличиваем отступ перед полем "Next"
 
         # Отображаем уровень
-        level_text = font_base.render(f"Level: {level}", True, WHITE)
+        level_text = font_base.render(f"Level: {self.level}", True, WHITE)
         self.screen.blit(level_text, (x, y))
         y += 40  # Увеличиваем отступ перед полем "Next"
 
@@ -213,6 +216,7 @@ class Game:
                 pygame.time.delay(10)  # Задержка для плавности анимации
 
     def draw_start_screen(self):
+        # TODO: возможно эту функцию можно убрать полностью, но я не уверен, на что это повлияет
         self.screen.fill(BLACK)  # Очищаем экран
 
         # Заголовок
@@ -244,6 +248,7 @@ class Game:
         return input_box, start_button, exit_button
 
     def get_selected_level(self):
+        # TODO: такая же ситуация здесь. Опять же, теперь класс Game принимает на вход нужный уровень
         mainsfx_sound.play()
         selected_level = ""
         input_active = True
@@ -318,7 +323,8 @@ class Game:
             if 0 <= y < len(grid) and 0 <= x < len(grid[y]):
                 grid[y][x] = color
 
-    def game(self):
+    def play(self):
+        # TODO: полное изменение механики уровней. Мое предложение - словарь, определяющий условия победы для каждого уровня
         while True:
             # Запускаем стартовое окно
             selected_level = self.get_selected_level()
@@ -477,7 +483,7 @@ class Game:
                             paused = not paused  # Переключаем состояние паузы
 
                         if event.key == pygame.K_r:  # Нажатие R
-                            self.game()
+                            self.play()
                             return
 
                     if event.type == pygame.KEYUP:

@@ -1,12 +1,13 @@
 import pygame
 import os
+from game import Game
 
 
 class LevelSprite(pygame.sprite.Sprite):
-    def __init__(self, number: str, *args, is_unlocked=False, is_completed=False):
+    def __init__(self, level: str, *args, is_unlocked=False, is_completed=False):
         super().__init__(*args)
 
-        self.number = number
+        self.level = level
         self.is_unlocked = is_unlocked
         self.is_completed = is_completed
 
@@ -14,18 +15,18 @@ class LevelSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         # Расстановка уровней в матрице [[1 2 3 4 5], [6 7 8 9 10]]
-        self.rect.x = 100 * ((int(self.number) + 4) % 5) + 12
-        self.rect.y = 100 if int(self.number) <= 5 else 200
+        self.rect.x = 100 * ((int(self.level) + 4) % 5) + 12
+        self.rect.y = 100 if int(self.level) <= 5 else 200
 
     def update_image(self):
         if not self.is_unlocked:
             self.picture_path = os.path.join('assets', 'levels', 'locked', 'level_locked.png')
 
         elif self.is_completed:
-            self.picture_path = os.path.join('assets', 'levels', self.number, 'level_complete.png')
+            self.picture_path = os.path.join('assets', 'levels', self.level, 'level_complete.png')
 
         else:
-            self.picture_path = os.path.join('assets', 'levels', self.number, 'level_static.png')
+            self.picture_path = os.path.join('assets', 'levels', self.level, 'level_static.png')
 
         self.image = pygame.image.load(self.picture_path).convert_alpha()
 
@@ -33,7 +34,8 @@ class LevelSprite(pygame.sprite.Sprite):
 
     def update(self, *args):
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(args[0].pos):
-            print(self.number)
+            level_gameplay = Game(int(self.level))
+            level_gameplay.play()
 
     def complete_level(self):
         self.is_completed = True
