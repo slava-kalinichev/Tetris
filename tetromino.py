@@ -65,5 +65,13 @@ class LockedTetromino(Tetromino):
         super().__init__(shape)
         self.color = LOCKED_SHAPE_COLOR
 
-    def rotate(self):
-        pass
+        for _ in range(random.randrange(4)):
+            self.rotate(init=True)
+
+
+    def rotate(self, init=False):
+        if not init:
+            pass
+
+        else:
+            super().rotate()
