@@ -545,7 +545,7 @@ class Game:
                 self.screen.fill(BLACK)  # Очистка экрана
                 self.draw_grid(grid)
                 self.draw_tetromino(current_tetromino)
-                self.draw_instructions(score, record, selected_level, next_tetromino)  # Рисуем инструкцию
+                self.draw_instructions(score, record, next_tetromino)  # Рисуем инструкцию
                 self.draw_border()  # Рисуем рамку вокруг игрового поля
 
                 # Отрисовываем активные анимации
