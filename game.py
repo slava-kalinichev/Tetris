@@ -6,6 +6,7 @@ from tkinter import messagebox
 from values import *
 from score_animation import *
 from tetromino import Tetromino, LockedTetromino
+from shadow import Shadow
 
 
 class Game:
@@ -351,7 +352,7 @@ class Game:
             # Срезаем словарь SHAPES до нужного количества фигур
             available_shapes = dict(list(SHAPES.items())[:num_shapes])
 
-            locked_shapes_chance = [Tetromino for _ in range(5)] + [LockedTetromino]
+            locked_shapes_chance = [Tetromino for _ in range(15)] + [LockedTetromino]
 
             current_tetromino = random.choice(locked_shapes_chance)(self.get_random_shape(available_shapes))
             next_tetromino = random.choice(locked_shapes_chance)(self.get_random_shape(available_shapes))
@@ -547,10 +548,14 @@ class Game:
                 # Удаляем завершённые анимации
                 self.score_animations = [anim for anim in self.score_animations if anim.active]
 
+                # Создаем объект проекции
+                shadow = Shadow(current_tetromino, grid)
+
                 # Отрисовка
                 self.screen.fill(BLACK)  # Очистка экрана
                 self.draw_grid(grid)
                 self.draw_tetromino(current_tetromino)
+                shadow.draw(self.screen)  # Отрисовываем проекцию
                 self.draw_instructions(score, record, next_tetromino)  # Рисуем инструкцию
                 self.draw_border()  # Рисуем рамку вокруг игрового поля
 
