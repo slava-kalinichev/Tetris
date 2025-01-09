@@ -2,6 +2,7 @@ import pygame
 import os
 from game import Game
 import csv
+from values import *
 
 
 class LevelSprite(pygame.sprite.Sprite):
@@ -34,30 +35,54 @@ class LevelSprite(pygame.sprite.Sprite):
         return self.picture_path, self.image
 
     def update(self, *args):
+        # Проверяем что среди спрайтов, выбранный объект - self
         if args and args[0].type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(args[0].pos):
-            level_gameplay = Game(int(self.level))
-            level_gameplay.play()
+            # Проверяем, что уровень открыт перед инициализацией игры
+            if not self.is_unlocked:
+                pass   # Проиграть звук попытки входа в неоткрытый уровень
 
-    def complete_level(self):
-        self.is_completed = True
+            else:
+                # Инициализируем игру и записываем результат в переменную
+                is_completed = self.start_game()
 
-    def unlock_level(self):
-        self.is_unlocked = True
+                # TODO: добавить класс контроллера
+                # Если уровень пройден, обновляем данные в файл и возвращаем True.
+                # Используется для последующего обновления объекта карты
+                # Проверка проводится в цикле контроллера
+                if is_completed:
+                    self.log_csv_data()
+                    return True
+
+        return None
+
+    def log_csv_data(self):
+        # TODO: осуществить функцию обновления файла уровней. Чтение - изменение строки уровня - перезапись файла
+        pass
+
+    def start_game(self):
+        level_gameplay = Game(self.level)
+        level_gameplay.play()
+
+        return level_gameplay.get_completion()
 
 
 class LevelMap(pygame.sprite.Group):
-    def __init__(self, data_file_path='data/level_status.csv'):
+    def __init__(self):
         super().__init__()
-        self.data_file_path = data_file_path
 
-        self.create_level_sprites()
+        self.update_csv_data()
 
-    def create_level_sprites(self):
-        with open(self.data_file_path) as csv_file:
+    def update_csv_data(self):
+        # Убираем предыдущие спрайты для обновления информации
+        self.empty()
+
+        # Открываем чсв файл и получаем данные
+        with open(LEVELS_FILE) as csv_file:
             reader = csv.reader(csv_file, delimiter=';')
             next(reader, None)
 
             for row in reader:
+                # Конвертируем данные и добавляем спрайт из каждой строки в группу
                 level = row[0]
                 is_unlocked, is_completed = map(lambda x: bool(int(x)), row[1:])
 

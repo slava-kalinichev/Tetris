@@ -14,6 +14,9 @@ class Game:
         # TODO: рефактор кода: замена пробной версии ввода уровня, изменение сложности и условий победы в зависимости от выбора
         self.level = level
 
+        # TODO: поставить True при прохождении уровня
+        self.is_level_completed = False
+
         self.score_animations = []  # Список активных анимаций
 
         # Создание экрана
@@ -25,6 +28,9 @@ class Game:
 
     def get_random_shape(self, available_shapes):
         return SHAPES[random.choice(list(available_shapes.keys()))]
+
+    def get_completion(self):
+        return self.is_level_completed
 
     def create_grid(self, locked_positions=None):
         if locked_positions is None:
