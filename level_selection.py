@@ -4,11 +4,11 @@ from game import Game
 
 
 class LevelSprite(pygame.sprite.Sprite):
-    def __init__(self, level: str, *args, is_unlocked=False, is_completed=False):
+    def __init__(self, level: str, *args, is_closed=False, is_completed=False):
         super().__init__(*args)
 
         self.level = level
-        self.is_unlocked = is_unlocked
+        self.is_closed = is_closed
         self.is_completed = is_completed
 
         self.picture_path, self.image = self.update_image()
@@ -19,8 +19,8 @@ class LevelSprite(pygame.sprite.Sprite):
         self.rect.y = 100 if int(self.level) <= 5 else 200
 
     def update_image(self):
-        if not self.is_unlocked:
-            self.picture_path = os.path.join('assets', 'levels', 'locked', 'level_locked.png')
+        if not self.is_closed:
+            self.picture_path = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
 
         elif self.is_completed:
             self.picture_path = os.path.join('assets', 'levels', self.level, 'level_complete.png')
@@ -41,7 +41,7 @@ class LevelSprite(pygame.sprite.Sprite):
         self.is_completed = True
 
     def unlock_level(self):
-        self.is_unlocked = True
+        self.is_closed = True
 
 
 class LevelMap(pygame.sprite.Group):
@@ -51,7 +51,7 @@ class LevelMap(pygame.sprite.Group):
 
         for i in range(1, self.levels + 1):
             if i == 1:
-                LevelSprite(str(i), self, is_unlocked=True)
+                LevelSprite(str(i), self, is_closed=True)
 
             else:
                 LevelSprite(str(i), self)
@@ -59,7 +59,7 @@ class LevelMap(pygame.sprite.Group):
 # DEBUG
 pygame.init()
 
-screen = pygame.display.set_mode((500, 500))
+screen = pygame.display.set_mode((500, 600))
 clock = pygame.time.Clock()
 fps = 30
 
@@ -74,7 +74,7 @@ while run:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mapping.update(event)
 
-    screen.fill('white')
+    screen.fill('black')
     mapping.draw(screen)
     pygame.display.flip()
     clock.tick(fps)
