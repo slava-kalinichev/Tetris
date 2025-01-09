@@ -1,14 +1,15 @@
 import pygame
 import os
 from game import Game
+import csv
 
 
 class LevelSprite(pygame.sprite.Sprite):
-    def __init__(self, level: str, *args, is_closed=False, is_completed=False):
+    def __init__(self, *args, level=None, is_unlocked=False, is_completed=False):
         super().__init__(*args)
 
         self.level = level
-        self.is_closed = is_closed
+        self.is_unlocked = is_unlocked
         self.is_completed = is_completed
 
         self.picture_path, self.image = self.update_image()
@@ -19,7 +20,7 @@ class LevelSprite(pygame.sprite.Sprite):
         self.rect.y = 100 if int(self.level) <= 5 else 200
 
     def update_image(self):
-        if not self.is_closed:
+        if not self.is_unlocked:
             self.picture_path = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
 
         elif self.is_completed:
@@ -41,20 +42,27 @@ class LevelSprite(pygame.sprite.Sprite):
         self.is_completed = True
 
     def unlock_level(self):
-        self.is_closed = True
+        self.is_unlocked = True
 
 
 class LevelMap(pygame.sprite.Group):
-    def __init__(self, levels=10):
+    def __init__(self, data_file_path='data/level_status.csv'):
         super().__init__()
-        self.levels = levels
+        self.data_file_path = data_file_path
 
-        for i in range(1, self.levels + 1):
-            if i == 1:
-                LevelSprite(str(i), self, is_closed=True)
+        self.create_level_sprites()
 
-            else:
-                LevelSprite(str(i), self)
+    def create_level_sprites(self):
+        with open(self.data_file_path) as csv_file:
+            reader = csv.reader(csv_file, delimiter=';')
+            next(reader, None)
+
+            for row in reader:
+                level = row[0]
+                is_unlocked, is_completed = map(lambda x: bool(int(x)), row[1:])
+
+                LevelSprite(self, level=level, is_unlocked=is_unlocked, is_completed=is_completed)
+
 
 # DEBUG
 pygame.init()

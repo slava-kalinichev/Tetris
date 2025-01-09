@@ -61,7 +61,7 @@ clear_sound = pygame.mixer.Sound("assets/SFX/07 Stage Clear.mp3")  # Звук у
 game_over_sound = pygame.mixer.Sound("assets/SFX/08 Game Over.mp3")  # Звук поражения
 mainsfx_sound = pygame.mixer.Sound("assets/SFX/19 SFX.mp3")  # Тема
 
-# Файл со значением рекорда
+# Файлы папки data
 RECORD_FILE = "data/high_score.txt"
 
 # Начисление очков по уровням соответственно закрытым линиям
