@@ -38,12 +38,16 @@ class ScoreAnimation:
                 # Плавно перемещаем текст
                 self.current_pos[0] += dx / distance * self.speed
                 self.current_pos[1] += dy / distance * self.speed
+
                 # Постепенно увеличиваем скорость
                 self.speed = min(self.max_speed, self.speed + self.acceleration)
+
                 # Плавно уменьшаем прозрачность
-                self.alpha = max(0, self.alpha - 0.01)  # Уменьшаем alpha на 2 каждый кадр
+                self.alpha = max(0.0, self.alpha - 0.01)  # Уменьшаем alpha на 2 каждый кадр
+
                 # Изменяем фазу для мигания цветами
                 self.pulse_phase += self.pulse_speed
+
             else:
                 # Анимация завершена
                 self.active = False
@@ -57,7 +61,9 @@ class ScoreAnimation:
 
             # Создаём поверхность с текстом
             text_surface = self.font.render(f"+{self.points}", True, color)
+
             # Устанавливаем прозрачность
             text_surface.set_alpha(self.alpha)
-            # Отрисовываем текст
+
+            # Обрисовываем текст
             screen.blit(text_surface, (int(self.current_pos[0]), int(self.current_pos[1])))
