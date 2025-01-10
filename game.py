@@ -66,7 +66,7 @@ class Game:
 
                         # Если это LockedTetromino, рисуем свечение
                         if isinstance(tetromino, LockedTetromino):
-                            self.draw_glow(self.screen, (255, 0, 0), pygame.Rect(tmp_rect), glow_radius=3, alpha=100)
+                            self.draw_glow(self.screen, (255, 255, 255), pygame.Rect(tmp_rect), glow_radius=3, alpha=70)
 
     def draw_glow(self, screen, color, rect, glow_radius, alpha):
         """
