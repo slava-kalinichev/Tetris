@@ -293,6 +293,7 @@ class Game:
 
                         if not self.valid_space(current_tetromino, grid):
                             current_tetromino.y -= 1
+                            fall_speed = tmp_speed
                             force_sound.play()  # Звук приземления блока
                             score += selected_level
 
