@@ -203,89 +203,6 @@ class Game:
                 pygame.display.update()
                 pygame.time.delay(10)  # Задержка для плавности анимации
 
-    def draw_start_screen(self):
-        # TODO: возможно эту функцию можно убрать полностью, но я не уверен, на что это повлияет
-        self.screen.fill(BLACK)  # Очищаем экран
-
-        # Заголовок
-        title = font_title.render("Tetris", True, WHITE)
-        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 100))
-
-        # Выбор уровня
-        level_text = font_level.render("Enter the level (1-10):", True, WHITE)
-        self.screen.blit(level_text, (SCREEN_WIDTH // 2 - level_text.get_width() // 2, 200))
-
-        # Поле для ввода уровня
-        input_box = pygame.Rect(SCREEN_WIDTH // 2 - 50, 250, 100, 40)
-        pygame.draw.rect(self.screen, WHITE, input_box)  # Закрашиваем поле белым
-        pygame.draw.rect(self.screen, BLACK, input_box, 2)  # Рамка чёрного цвета
-
-        # Кнопка "Начать"
-        start_button = pygame.Rect(SCREEN_WIDTH // 2 - 75, 310, 150, 50)
-        pygame.draw.rect(self.screen, (0, 0, 255), start_button, 1)
-        button_text = font_start.render("Start", True, WHITE)
-        self.screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, 320))
-
-        # Кнопка "Выход"
-        exit_button = pygame.Rect(SCREEN_WIDTH // 2 - 50, 400, 100, 40)
-        pygame.draw.rect(self.screen, WHITE, exit_button, 1)
-        exit_text = font_exit.render("Exit", True, WHITE)
-        self.screen.blit(exit_text, (SCREEN_WIDTH // 2 - exit_text.get_width() // 2, 410))
-
-        pygame.display.update()
-        return input_box, start_button, exit_button
-
-    def get_selected_level(self):
-        # TODO: такая же ситуация здесь. Опять же, теперь класс Game принимает на вход нужный уровень
-        mainsfx_sound.play()
-        selected_level = ""
-        input_active = True
-        input_box, start_button, exit_button = self.draw_start_screen()
-
-        while input_active:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return None
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:  # Нажатие Enter
-                        if selected_level.isdigit() and 1 <= int(selected_level) <= 10:
-                            self.animate_button(start_button)
-                            mainsfx_sound.stop()
-                            return int(selected_level)
-                    elif event.key == pygame.K_BACKSPACE:  # Удаление символа
-                        selected_level = selected_level[:-1]
-                    elif event.key == pygame.K_ESCAPE:  # Нажатие Esc
-                        pygame.quit()  # Закрываем программу
-                        return None
-                    else:
-                        if event.unicode.isdigit() and len(selected_level) < 2:  # Только цифры
-                            selected_level += event.unicode
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if start_button.collidepoint(event.pos):  # Нажатие на кнопку "Начать"
-                        if selected_level.isdigit() and 1 <= int(selected_level) <= 10:
-                            self.animate_button(start_button)
-                            mainsfx_sound.stop()
-                            return int(selected_level)
-                    if exit_button.collidepoint(event.pos):  # Нажатие на кнопку "Выход"
-                        pygame.quit()
-                        return None
-
-            # Отрисовка введённого уровня
-            self.screen.fill(WHITE, input_box)  # Закрашиваем поле белым
-            level_surface = font_level.render(selected_level, True, BLACK)  # Чёрный текст
-
-            # Выравнивание текста по центру
-            text_width = level_surface.get_width()  # Ширина текста
-            text_x = input_box.x + (input_box.width - text_width) // 2  # Центрирование по горизонтали
-            text_y = input_box.y + (input_box.height - level_surface.get_height()) // 2  # Центрирование по вертикали
-
-            self.screen.blit(level_surface, (text_x, text_y))
-            pygame.draw.rect(self.screen, BLACK, input_box, 2)  # Рамка чёрного цвета
-
-            pygame.display.update()
-
     def animate_button(self, button):
         pygame.draw.rect(self.screen, GRAY, button)
         button_text = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 35).render("Start", True, BLACK)
@@ -311,13 +228,15 @@ class Game:
             if 0 <= y < len(grid) and 0 <= x < len(grid[y]):
                 grid[y][x] = color
 
+    def win_level(self):
+        # TODO: реализовать окно победы уровня. Желательно чтобы оно сопровождалось плавным переходом, а не резкой остановкой уровня
+        pass
+
     def play(self):
         # TODO: полное изменение механики уровней. Мое предложение - словарь, определяющий условия победы для каждого уровня
         while True:
-            # Запускаем стартовое окно
-            selected_level = self.get_selected_level()
-            if selected_level is None:
-                return  # Выход, если окно закрыто
+            # Устанавливаем переменную уровня
+            selected_level = int(self.level)
 
             # Устанавливаем скорость в зависимости от уровня
             fall_speed = LEVEL_SPEEDS[selected_level]
@@ -360,6 +279,8 @@ class Game:
                 if score > 5_000:
                     self.is_level_completed = True
                     running = False
+
+                    self.win_level()
 
                 grid = self.create_grid(locked_positions)
                 fall_time += self.clock.get_rawtime()
