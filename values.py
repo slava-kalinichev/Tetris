@@ -1,4 +1,5 @@
 import pygame
+import os
 
 pygame.init()
 
@@ -62,8 +63,9 @@ game_over_sound = pygame.mixer.Sound("assets/SFX/08 Game Over.mp3")  # Звук 
 mainsfx_sound = pygame.mixer.Sound("assets/SFX/19 SFX.mp3")  # Тема
 
 # Файлы папки data
-RECORD_FILE = "data/high_score.txt"
-LEVELS_FILE = 'data/level_status.csv'
+RECORD_FILE = os.path.join("data", "high_score.txt")
+LEVELS_FILE = os.path.join("data", "level_status.csv")
+CLOSED_LEVEL_PATH = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
 
 # Начисление очков по уровням соответственно закрытым линиям
 POINTS = {1: [100, 300, 700, 1500],

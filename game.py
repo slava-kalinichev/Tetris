@@ -1,8 +1,6 @@
 import random
 import os
 import time
-import tkinter as tk
-from tkinter import messagebox
 from values import *
 from score_animation import *
 from tetromino import Tetromino, LockedTetromino
@@ -14,8 +12,6 @@ class Game:
         pygame.init()
         # TODO: рефактор кода: замена пробной версии ввода уровня, изменение сложности и условий победы в зависимости от выбора
         self.level = level
-
-        # TODO: поставить True при прохождении уровня
         self.is_level_completed = False
 
         self.score_animations = []  # Список активных анимаций
@@ -65,10 +61,8 @@ class Game:
                     cell = row[x]
 
                     if cell:
-                        pygame.draw.rect(self.screen,
-                                         tetromino.color,
-                                         ((tetromino.x + x) * BLOCK_SIZE, (tetromino.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE),
-                                         0)
+                        tmp_rect = ((tetromino.x + x) * BLOCK_SIZE, (tetromino.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+                        pygame.draw.rect(self.screen,tetromino.color, tmp_rect,0)
 
     def valid_space(self, tetromino, grid):
         shape = tetromino.get_shape()
@@ -122,20 +116,6 @@ class Game:
                     clear_sound.play()
 
         return cleared_rows
-
-    '''def show_game_over_dialogue(self):  # Диалоговое окно завершения игры
-        # TODO: переделать экран окончания игры под свой, без библиотеки ткинтера
-
-        mainsfx_sound.play()
-        root = tk.Tk()
-        root.withdraw()  # Скрываем основное окно tkinter
-
-        # Создаем диалоговое окно
-        result = messagebox.askquestion("Игра окончена", "Запустить новую игру?", default=messagebox.YES)
-        root.destroy()  # Закрываем окно tkinter
-        mainsfx_sound.stop()
-
-        return result == "yes"'''
 
     def draw_instructions(self, score, record, next_tetromino):
         x = GRID_WIDTH + 16  # Отступ от игрового поля
@@ -202,6 +182,7 @@ class Game:
         if os.path.exists(RECORD_FILE):
             with open(RECORD_FILE, 'r') as file:
                 return int(file.read())
+
         return 0  # Если файла нет, возвращаем 0
 
     # Функция для сохранения рекорда в файл
@@ -319,7 +300,7 @@ class Game:
         pygame.time.delay(100)  # Задержка для анимации
 
     def sync_grid_with_locked_positions(self, grid, locked_positions):
-        """Синхронизирует grid с locked_positions."""
+        # Синхронизирует grid с locked_positions.
         # Очищаем grid
         for y in range(len(grid)):
             for x in range(len(grid[y])):
@@ -374,6 +355,12 @@ class Game:
             game_over = False
 
             while running:
+                # TODO: реализовать проверку выполнения условий прохождения уровня
+                # пробная версия. Для дебаггинга
+                if score > 5_000:
+                    self.is_level_completed = True
+                    running = False
+
                 grid = self.create_grid(locked_positions)
                 fall_time += self.clock.get_rawtime()
                 self.clock.tick()

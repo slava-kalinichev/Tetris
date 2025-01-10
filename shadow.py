@@ -15,14 +15,14 @@ class Shadow:
         self.y = self.calculate_y()  # Позиция по Y (рассчитывается)
 
     def calculate_y(self):
-        """Рассчитывает Y-координату проекции."""
+        # Рассчитывает Y-координату проекции.
         y = self.tetromino.y
         while self.is_valid_position(y + 1):
             y += 1
         return y
 
     def is_valid_position(self, y):
-        """Проверяет, может ли фигура находиться на указанной Y-координате."""
+        # Проверяет, может ли фигура находиться на указанной Y-координате.
         for row in range(len(self.shape)):
             for col in range(len(self.shape[row])):
                 if self.shape[row][col]:
@@ -33,11 +33,11 @@ class Shadow:
         return True
 
     def get_shape(self):
-        """Возвращает форму фигуры."""
+        # Возвращает форму фигуры.
         return self.shape
 
     def draw(self, screen):
-        """Отрисовывает проекцию на экране."""
+        # Обрисовывает проекцию на экране.
         for row in range(len(self.shape)):
             for col in range(len(self.shape[row])):
                 if self.shape[row][col]:
@@ -47,5 +47,5 @@ class Shadow:
                     color_with_alpha = (*self.color, 100)
                     # Закрашиваем поверхность полупрозрачным цветом
                     surface.fill(color_with_alpha)
-                    # Отрисовываем поверхность на экране
+                    # Обрисовываем поверхность на экране
                     screen.blit(surface, ((self.x + col) * BLOCK_SIZE, (self.y + row) * BLOCK_SIZE))

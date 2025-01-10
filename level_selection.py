@@ -22,7 +22,7 @@ class LevelSprite(pygame.sprite.Sprite):
 
     def update_image(self):
         if not self.is_unlocked:
-            self.picture_path = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
+            self.picture_path = CLOSED_LEVEL_PATH
 
         elif self.is_completed:
             self.picture_path = os.path.join('assets', 'levels', self.level, 'level_complete.png')
@@ -35,13 +35,15 @@ class LevelSprite(pygame.sprite.Sprite):
         return self.picture_path, self.image
 
     def update(self, *args):
-        # Проверяем что среди спрайтов, выбранный объект - self
-        if args and args[0].type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(args[0].pos):
-            # Проверяем, что уровень открыт перед инициализацией игры
-            if not self.is_unlocked:
-                pass   # Проиграть звук попытки входа в неоткрытый уровень
+        # Проверяем что среди спрайтов группы выбранный объект - self
+        if self.rect.collidepoint(args[0].pos):
+            # Проверяем, что событие есть, и это событие - нажатие кнопки мыши
+            if args and args[0].type == pygame.MOUSEBUTTONDOWN:
+                # Проверяем, что уровень открыт перед инициализацией игры
+                if not self.is_unlocked:
+                    # TODO: Проиграть звук попытки входа в неоткрытый уровень
+                    return None
 
-            else:
                 # Инициализируем игру и записываем результат в переменную
                 is_completed = self.start_game()
 
@@ -56,8 +58,44 @@ class LevelSprite(pygame.sprite.Sprite):
         return None
 
     def log_csv_data(self):
-        # TODO: осуществить функцию обновления файла уровней. Чтение - изменение строки уровня - перезапись файла
-        pass
+        # Открываем файл для чтения
+        with open(LEVELS_FILE) as csv_input:
+            reader = csv.reader(csv_input, delimiter=';')
+            data = []
+
+            # создаем флаг для разблокировки уровня
+            unlock_level = False
+            for line in reader:
+                # проверяем флаг
+                if unlock_level:
+                    # обнуляем флаг
+                    unlock_level = False
+
+                    # ставим True для параметра разблокировки
+                    line[1] = '1'
+
+                else:
+                    # проверяем, что изменяем строчку с нужным уровнем
+                    if line[0] == self.level:
+                        # проходим уровень
+                        line[2] = '1'
+
+                        # не обновляем флаг разблокировки для десятого уровня, так как дальше уровней нет
+                        if self.level == '10':
+                            break
+
+                        else:
+                            unlock_level = True
+
+                # пополняем список для записи
+                data.append(line)
+
+        # Записываем обновленные данные в тот же файл
+        with open(LEVELS_FILE, 'w', newline='') as csv_output:
+            writer = csv.writer(csv_output, delimiter=';')
+
+            for line in data:
+                writer.writerow(line)
 
     def start_game(self):
         level_gameplay = Game(self.level)
