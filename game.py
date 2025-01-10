@@ -224,13 +224,13 @@ class Game:
 
     def animate_button(self, button):
         pygame.draw.rect(self.screen, GRAY, button)
-        button_text = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 35).render("Start", True, BLACK)
+        button_text = pygame.font.Font(FONT_FILE, 35).render("Start", True, BLACK)
         self.screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, 320))
         pygame.display.update()
         pygame.time.delay(100)  # Задержка для анимации
 
         pygame.draw.rect(self.screen, BLACK, button)
-        button_text = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 35).render("Start", True, WHITE)
+        button_text = pygame.font.Font(FONT_FILE, 35).render("Start", True, WHITE)
         self.screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, 320))
         pygame.display.update()
         pygame.time.delay(100)  # Задержка для анимации
@@ -295,7 +295,7 @@ class Game:
             while running:
                 # TODO: реализовать проверку выполнения условий прохождения уровня
                 # пробная версия. Для дебаггинга
-                if score > 5_000:
+                if score > 50_000:
                     self.is_level_completed = True
                     running = False
 
