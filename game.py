@@ -349,13 +349,11 @@ class Game:
                 # Главный обработчик нажатий на кнопки
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        pygame.quit()
-                        return
+                        return 'quit'
 
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:  # Нажатие Esc
-                            pygame.quit()  # Закрываем программу
-                            return
+                            return 'quit'
 
                         if event.key == pygame.K_LEFT:
                             current_tetromino.x -= 1
@@ -416,7 +414,7 @@ class Game:
                 # Очистка строк и сброс fall_time
                 cleared_rows = self.clear_rows(grid, locked_positions, current_tetromino, game_over)
                 if not game_over and cleared_rows:
-                    fall_speed *= 0.95  # Ускорение падения при сборке линии
+                    fall_speed *= 0.975  # Ускорение падения при сборке линии
                     fall_time = 0  # Сбрасываем fall_time после очистки строки
                     all_points = POINTS[selected_level][cleared_rows-1]
                     points = all_points // cleared_rows

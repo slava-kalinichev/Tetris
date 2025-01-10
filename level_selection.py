@@ -134,17 +134,22 @@ fps = 30
 mapping = LevelMap()
 
 run = True
-while run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+if pygame.display.get_init():  # Проверяем, инициализирован ли экран
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
 
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            mapping.update(event)
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run = False
 
-    screen.fill('black')
-    mapping.draw(screen)
-    pygame.display.flip()
-    clock.tick(fps)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mapping.update(event)
+
+        screen.fill('black')
+        mapping.draw(screen)
+        pygame.display.flip()
+        clock.tick(fps)
 
 pygame.quit()
