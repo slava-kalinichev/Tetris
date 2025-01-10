@@ -1,2 +1,3 @@
 .idea/
-data/
+data/high_score.txt
+data/level_status.csv
