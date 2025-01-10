@@ -64,6 +64,25 @@ class Game:
                         tmp_rect = ((tetromino.x + x) * BLOCK_SIZE, (tetromino.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
                         pygame.draw.rect(self.screen,tetromino.color, tmp_rect,0)
 
+                        # Если это LockedTetromino, рисуем свечение
+                        if isinstance(tetromino, LockedTetromino):
+                            self.draw_glow(self.screen, (255, 0, 0), pygame.Rect(tmp_rect), glow_radius=3, alpha=100)
+
+    def draw_glow(self, screen, color, rect, glow_radius, alpha):
+        """
+        Рисует свечение вокруг прямоугольника.
+        :param screen: Экран Pygame.
+        :param color: Цвет свечения (например, (255, 0, 0) для красного).
+        :param rect: Прямоугольник, вокруг которого рисуется свечение.
+        :param glow_radius: Радиус свечения.
+        :param alpha: Прозрачность свечения (0-255).
+        """
+        glow_surface = pygame.Surface((rect.width + glow_radius * 2, rect.height + glow_radius * 2), pygame.SRCALPHA)
+        pygame.draw.rect(glow_surface, (*color, alpha), (0, 0, glow_surface.get_width(), glow_surface.get_height()),
+                         border_radius=5)
+        screen.blit(glow_surface, (rect.x - glow_radius, rect.y - glow_radius))
+
+
     def valid_space(self, tetromino, grid):
         shape = tetromino.get_shape()
 
@@ -293,7 +312,10 @@ class Game:
 
                         if not self.valid_space(current_tetromino, grid):
                             current_tetromino.y -= 1
-                            fall_speed = tmp_speed
+                            try:
+                                fall_speed = tmp_speed
+                            except:
+                                pass
                             force_sound.play()  # Звук приземления блока
                             score += selected_level
 
