@@ -81,7 +81,7 @@ class LevelSprite(pygame.sprite.Sprite):
                         line[2] = '1'
 
                         # Обновляем флаг для всех уровней кроме последнего
-                        if self.level < '10':
+                        if int(self.level) < 10:
                             unlock_level = True
 
                 # Пополняем список для записи

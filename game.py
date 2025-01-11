@@ -391,9 +391,6 @@ class Game:
                         return 'quit'
 
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_ESCAPE:  # Нажатие Esc
-                            return 'quit'
-
                         if event.key == pygame.K_LEFT:
                             current_tetromino.x -= 1
 
