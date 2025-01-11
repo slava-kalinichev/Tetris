@@ -1,5 +1,5 @@
-if __name__ == "__main__":
-    from game import Game
+from controller import Controller
 
-    controller = Game()
-    controller.play()
+if __name__ == "__main__":
+    game_play = Controller()
+    game_play.start()

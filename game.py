@@ -307,16 +307,14 @@ class Game:
                         # Проверяем, собирали ли мы 4 линии за раз
                         if self.is_line_goal_completed:
                             self.is_level_completed = True
-                            running = False
 
-                            self.win_level()
+                            return
 
                     # Если цель не установлена, уровень пройден
                     else:
                         self.is_level_completed = True
-                        running = False
 
-                        self.win_level()
+                        return
 
                 grid = self.create_grid(locked_positions)
                 fall_time += self.clock.get_rawtime()

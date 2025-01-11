@@ -44,9 +44,8 @@ class LevelSprite(pygame.sprite.Sprite):
                     # TODO: Проиграть звук попытки входа в неоткрытый уровень
                     return None
 
-                # Инициализируем игру и возвращаем результат. Обработается в цикле контроллера
-                # Помимо результата возвращаем объект, который обновится если уровень пройден
-                return self.start_game(), self
+                # Возвращаем уровень, который был вызван
+                return self
 
         return None
 
@@ -116,33 +115,12 @@ class LevelMap(pygame.sprite.Group):
 
                 LevelSprite(self, level=level, is_unlocked=is_unlocked, is_completed=is_completed)
 
+    def enter_level(self, *args):
+        data = []
 
-# DEBUG
-pygame.init()
+        for level in self:
+            # Вызываем метод и записываем значение
+            level_state = level.update(*args)
+            data.append(level_state)
 
-screen = pygame.display.set_mode((500, 600))
-clock = pygame.time.Clock()
-fps = 30
-
-mapping = LevelMap()
-
-run = True
-if pygame.display.get_init():  # Проверяем, инициализирован ли экран
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    run = False
-
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mapping.update(event)
-
-        screen.fill('black')
-        mapping.draw(screen)
-        pygame.display.flip()
-        clock.tick(fps)
-
-pygame.quit()
+        return data
