@@ -10,9 +10,28 @@ from shadow import Shadow
 class Game:
     def __init__(self, level):
         pygame.init()
-        # TODO: рефактор кода: замена пробной версии ввода уровня, изменение сложности и условий победы в зависимости от выбора
+
         self.level = level
         self.is_level_completed = False
+
+        # Создание параметров сложности
+        self.selected_level = int(self.level)
+        self.fall_speed = LEVEL_DIFFICULTY_SETTINGS[SPEED][self.selected_level]
+
+        num_shapes = LEVEL_DIFFICULTY_SETTINGS[SHAPE_COUNT][self.selected_level]
+        self.available_shapes = dict(list(SHAPES.items())[:num_shapes])
+
+        locked_shapes_chance = LEVEL_DIFFICULTY_SETTINGS[LOCKED_SHAPES][self.selected_level]
+        self.type_determination = [Tetromino]
+
+        if locked_shapes_chance:
+            self.type_determination = [Tetromino for _ in range(locked_shapes_chance)] + [LockedTetromino]
+
+        self.score_goal = LEVEL_DIFFICULTY_SETTINGS[MIN_POINTS][self.selected_level]
+        self.line_goal = LEVEL_DIFFICULTY_SETTINGS[MAKE_TETRIS][self.selected_level]
+        self.is_line_goal_completed = False
+
+        self.points_assignment = LEVEL_DIFFICULTY_SETTINGS[POINTS_PER_LINE][self.selected_level]
 
         self.score_animations = []  # Список активных анимаций
 
@@ -25,6 +44,9 @@ class Game:
 
     def get_random_shape(self, available_shapes):
         return SHAPES[random.choice(list(available_shapes.keys()))]
+
+    def generate_tetromino(self):
+        return random.choice(self.type_determination)(self.get_random_shape(self.available_shapes))
 
     def get_completion(self):
         return self.is_level_completed
@@ -252,29 +274,13 @@ class Game:
         pass
 
     def play(self):
-        # TODO: полное изменение механики уровней. Мое предложение - словарь, определяющий условия победы для каждого уровня
         while True:
-            # Устанавливаем переменную уровня
-            selected_level = int(self.level)
-
-            # Устанавливаем скорость в зависимости от уровня
-            fall_speed = LEVEL_SPEEDS[selected_level]
-
             # Инициализация игры
             locked_positions = {}
             grid = self.create_grid(locked_positions)
 
-            num_shapes = 8  # По умолчанию
-            for level, count in AVAILABLE_SHAPES.items():
-                if selected_level >= level:
-                    num_shapes = count
-            # Срезаем словарь SHAPES до нужного количества фигур
-            available_shapes = dict(list(SHAPES.items())[:num_shapes])
-
-            locked_shapes_chance = [Tetromino for _ in range(15)] + [LockedTetromino]
-
-            current_tetromino = random.choice(locked_shapes_chance)(self.get_random_shape(available_shapes))
-            next_tetromino = random.choice(locked_shapes_chance)(self.get_random_shape(available_shapes))
+            current_tetromino = self.generate_tetromino()
+            next_tetromino = self.generate_tetromino()
             fall_time = 0
             accelerated_fall_speed = 0.05
             score = 0
@@ -293,20 +299,30 @@ class Game:
             game_over = False
 
             while running:
-                # TODO: реализовать проверку выполнения условий прохождения уровня
-                # пробная версия. Для дебаггинга
-                if score > 50_000:
-                    self.is_level_completed = True
-                    running = False
+                # Проверяем наличие нужных очков
+                if score > self.score_goal:
+                    # Проверяем, установлена ли цель по собиранию линий
+                    if self.line_goal:
+                        # Проверяем, собирали ли мы 4 линии за раз
+                        if self.is_line_goal_completed:
+                            self.is_level_completed = True
+                            running = False
 
-                    self.win_level()
+                            self.win_level()
+
+                    # Если цель не установлена, уровень пройден
+                    else:
+                        self.is_level_completed = True
+                        running = False
+
+                        self.win_level()
 
                 grid = self.create_grid(locked_positions)
                 fall_time += self.clock.get_rawtime()
                 self.clock.tick()
 
                 if not game_over and not paused:
-                    if fall_time / 1000 >= fall_speed:
+                    if fall_time / 1000 >= self.fall_speed:
                         fall_time = 0
                         current_tetromino.y += 1
 
@@ -317,7 +333,7 @@ class Game:
                             except:
                                 pass
                             force_sound.play()  # Звук приземления блока
-                            score += selected_level
+                            score += self.selected_level * 10
 
                             for y, row in enumerate(current_tetromino.get_shape()):
                                 for x, cell in enumerate(row):
@@ -325,11 +341,11 @@ class Game:
                                         locked_positions[(current_tetromino.x + x, current_tetromino.y + y)] = current_tetromino.color
 
                             current_tetromino = next_tetromino
-                            next_tetromino = random.choice(locked_shapes_chance)(self.get_random_shape(available_shapes))
+                            next_tetromino = self.generate_tetromino()
 
                             if not self.valid_space(current_tetromino, grid):
                                 game_over = True
-                                score -= selected_level  # Корректировка счёта за последнее приземление
+                                score -= self.selected_level  # Корректировка счёта за последнее приземление
                                 self.game_over_animation(grid)  # Анимация поражения
                                 running = False
 
@@ -400,7 +416,7 @@ class Game:
 
                         if event.key == pygame.K_DOWN:
                             # Включаем ускоренное падение
-                            tmp_speed = fall_speed
+                            tmp_speed = self.fall_speed
                             fall_speed = accelerated_fall_speed
                             keys[pygame.K_DOWN]['pressed'] = True
                             keys[pygame.K_DOWN]['last_time'] = current_time
@@ -437,10 +453,15 @@ class Game:
                 # Очистка строк и сброс fall_time
                 cleared_rows = self.clear_rows(grid, locked_positions, current_tetromino, game_over)
                 if not game_over and cleared_rows:
-                    fall_speed *= 0.975  # Ускорение падения при сборке линии
+                    self.fall_speed *= 0.975  # Ускорение падения при сборке линии
                     fall_time = 0  # Сбрасываем fall_time после очистки строки
-                    all_points = POINTS[selected_level][cleared_rows-1]
+                    all_points = self.points_assignment[cleared_rows - 1]
                     points = all_points // cleared_rows
+
+                    # Если зачищено 4 строки, обновляем флаг
+                    if cleared_rows == 4:
+                        self.is_line_goal_completed = True
+
                     # Запускаем анимацию для каждой удаленной сроки
                     for row in range(1, cleared_rows + 1):
                         start_y = (GRID_HEIGHT // BLOCK_SIZE - row) * BLOCK_SIZE + BLOCK_SIZE // 2
