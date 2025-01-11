@@ -16,7 +16,8 @@ class Game:
 
         # Создание параметров сложности
         self.selected_level = int(self.level)
-        self.fall_speed = LEVEL_DIFFICULTY_SETTINGS[SPEED][self.selected_level]
+        self.starting_fall_speed = LEVEL_DIFFICULTY_SETTINGS[SPEED][self.selected_level]
+        self.fall_speed = self.starting_fall_speed
 
         num_shapes = LEVEL_DIFFICULTY_SETTINGS[SHAPE_COUNT][self.selected_level]
         self.available_shapes = dict(list(SHAPES.items())[:num_shapes])
@@ -329,7 +330,7 @@ class Game:
                         if not self.valid_space(current_tetromino, grid):
                             current_tetromino.y -= 1
                             try:
-                                fall_speed = tmp_speed
+                                self.fall_speed = tmp_speed
                             except:
                                 pass
                             force_sound.play()  # Звук приземления блока
@@ -345,8 +346,9 @@ class Game:
 
                             if not self.valid_space(current_tetromino, grid):
                                 game_over = True
-                                score -= self.selected_level  # Корректировка счёта за последнее приземление
+                                score -= self.selected_level * 10  # Корректировка счёта за последнее приземление
                                 self.game_over_animation(grid)  # Анимация поражения
+                                self.fall_speed = self.starting_fall_speed
                                 running = False
 
                             # Обновляем рекорд, если текущий счёт больше
@@ -391,6 +393,9 @@ class Game:
                         return 'quit'
 
                     if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            return 'quit'
+
                         if event.key == pygame.K_LEFT:
                             current_tetromino.x -= 1
 
@@ -414,7 +419,7 @@ class Game:
                         if event.key == pygame.K_DOWN:
                             # Включаем ускоренное падение
                             tmp_speed = self.fall_speed
-                            fall_speed = accelerated_fall_speed
+                            self.fall_speed = accelerated_fall_speed
                             keys[pygame.K_DOWN]['pressed'] = True
                             keys[pygame.K_DOWN]['last_time'] = current_time
                             drop_sound.play()  # Звук падения
@@ -443,7 +448,7 @@ class Game:
                             keys[pygame.K_RIGHT]['pressed'] = False
 
                         if event.key == pygame.K_DOWN:
-                            fall_speed = tmp_speed
+                            self.fall_speed = tmp_speed
                             keys[pygame.K_DOWN]['pressed'] = False
 
 
