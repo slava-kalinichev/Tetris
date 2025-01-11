@@ -18,7 +18,7 @@ class LevelSprite(pygame.sprite.Sprite):
 
         # Расстановка уровней в матрице [[1 2 3 4 5], [6 7 8 9 10]]
         self.rect.x = 100 * ((int(self.level) + 4) % 5) + 12
-        self.rect.y = 100 if int(self.level) <= 5 else 200
+        self.rect.y = 150 if int(self.level) <= 5 else SCREEN_HEIGHT - 225
 
     def update_image(self):
         if not self.is_unlocked:
@@ -44,16 +44,9 @@ class LevelSprite(pygame.sprite.Sprite):
                     # TODO: Проиграть звук попытки входа в неоткрытый уровень
                     return None
 
-                # Инициализируем игру и записываем результат в переменную
-                is_completed = self.start_game()
-
-                # TODO: добавить класс контроллера
-                # Если уровень пройден, обновляем данные в файл и возвращаем True.
-                # Используется для последующего обновления объекта карты
-                # Проверка проводится в цикле контроллера
-                if is_completed:
-                    self.log_csv_data()
-                    return True
+                # Инициализируем игру и возвращаем результат. Обработается в цикле контроллера
+                # Помимо результата возвращаем объект, который обновится если уровень пройден
+                return self.start_game(), self
 
         return None
 
