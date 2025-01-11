@@ -5,6 +5,7 @@ from values import *
 from score_animation import *
 from tetromino import Tetromino, LockedTetromino
 from shadow import Shadow
+from confettii_animation import ConfettiParticle
 
 
 class Game:
@@ -13,6 +14,8 @@ class Game:
 
         self.level = level
         self.is_level_completed = False
+
+        self.confetti_particles = []  # Список для хранения частиц конфетти
 
         # Создание параметров сложности
         self.selected_level = int(self.level)
@@ -270,9 +273,50 @@ class Game:
             if 0 <= y < len(grid) and 0 <= x < len(grid[y]):
                 grid[y][x] = color
 
-    def win_level(self):
-        # TODO: реализовать окно победы уровня. Желательно чтобы оно сопровождалось плавным переходом, а не резкой остановкой уровня
-        pass
+    def draw_win_screen(self):
+        '''Экран прохождения уровня'''
+        # Создаем поверхность для окна победы
+        win_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        win_surface.fill(BLACK)
+
+        # Шрифт для текста и кнопок
+        font = pygame.font.Font(FONT_FILE, 40)
+        button_font = pygame.font.Font(FONT_FILE, 35)
+
+        win_text = font.render("You passed the level", True, WHITE)
+        win_text_rect = win_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
+
+        # Кнопка "Menu"
+        self.menu_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 50, 200, 50)
+        menu_text = button_font.render("Menu", True, WHITE)
+        menu_text_rect = menu_text.get_rect(center=self.menu_button.center)
+
+        # Кнопка "Continue"
+        self.continue_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 120, 200, 50)
+        continue_text = button_font.render("Continue", True, WHITE)
+        continue_text_rect = continue_text.get_rect(center=self.continue_button.center)
+
+        # Отрисовка текста и кнопок
+        win_surface.blit(win_text, win_text_rect)
+        pygame.draw.rect(win_surface, GRAY, self.menu_button)
+        win_surface.blit(menu_text, menu_text_rect)
+        pygame.draw.rect(win_surface, GRAY, self.continue_button)
+        win_surface.blit(continue_text, continue_text_rect)
+
+        # Отображение окна победы на основном экране
+        self.screen.blit(win_surface, (0, 0))
+
+        for _ in range(10):  # Добавляем 10 новых частиц
+            x = random.randint(0, SCREEN_WIDTH)
+            y = random.randint(0, SCREEN_HEIGHT)
+            self.confetti_particles.append(ConfettiParticle(x, y))
+
+        # Обновляем и отрисовываем частицы конфетти
+        for particle in self.confetti_particles:
+            particle.update()
+            particle.draw(self.screen)
+
+        pygame.display.update()
 
     def play(self):
         while True:
@@ -287,6 +331,7 @@ class Game:
             score = 0
             record = self.load_high_score()
             paused = False  # Состояние паузы
+            passed = False # Прохождение игры
 
 
             # Состояние кнопок - словарь для считывания длительного нажатия на кнопки
@@ -298,23 +343,22 @@ class Game:
 
             running = True
             game_over = False
+            show_win_screen = False  # Флаг для отображения окна победы
 
             while running:
                 # Проверяем наличие нужных очков
-                if score > self.score_goal:
+                if score >= self.score_goal and not self.is_level_completed :
                     # Проверяем, установлена ли цель по собиранию линий
                     if self.line_goal:
                         # Проверяем, собирали ли мы 4 линии за раз
                         if self.is_line_goal_completed:
-                            self.is_level_completed = True
-
-                            return
+                            paused = True
+                            show_win_screen = True  # Показываем окно победы
 
                     # Если цель не установлена, уровень пройден
                     else:
-                        self.is_level_completed = True
-
-                        return
+                        paused = True
+                        show_win_screen = True  # Показываем окно победы
 
                 grid = self.create_grid(locked_positions)
                 fall_time += self.clock.get_rawtime()
@@ -347,7 +391,7 @@ class Game:
                                 score -= self.selected_level * 10  # Корректировка счёта за последнее приземление
                                 self.game_over_animation(grid)  # Анимация поражения
                                 self.fall_speed = self.starting_fall_speed
-                                running = False
+                                return 'quit'
 
                             # Обновляем рекорд, если текущий счёт больше
                             if score > record:
@@ -440,6 +484,15 @@ class Game:
                             self.play()
                             return
 
+                    if event.type == pygame.MOUSEBUTTONDOWN and show_win_screen:
+                        # Обработка нажатий на кнопки в окне победы
+                        if self.menu_button.collidepoint(event.pos):
+                            self.is_level_completed = True
+                            return 'quit'
+                        if self.continue_button.collidepoint(event.pos):
+                            show_win_screen = False  # Закрываем окно победы
+                            self.is_level_completed = True
+
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_LEFT:
                             keys[pygame.K_LEFT]['pressed'] = False
@@ -520,5 +573,9 @@ class Game:
                     pause_text = font_pause.render("Pause", True, WHITE)
                     self.screen.blit(pause_text, (
                     SCREEN_WIDTH // 2 - pause_text.get_width() // 2, SCREEN_HEIGHT // 2 - pause_text.get_height() // 2))
+
+                # Если нужно показать окно победы
+                if show_win_screen:
+                    self.draw_win_screen()
 
                 pygame.display.update()
