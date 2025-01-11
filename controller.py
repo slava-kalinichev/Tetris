@@ -71,7 +71,10 @@ class Controller:
             # Вызываем игру и записываем результат в переменную
             is_level_completed = self.current_level.start_game()
 
-            if is_level_completed:
+            if is_level_completed == 'quit':
+                self.state = self.STATES[1]
+
+            elif is_level_completed:
                 self.current_level.log_csv_data()
                 self.level_map.update_csv_data()
 
