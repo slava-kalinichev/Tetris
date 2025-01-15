@@ -119,20 +119,21 @@ class Controller:
 
     def manage_level(self):
         if self.current_level:
-            # Показываем окно информации уровня
-            self.current_level.show_info()
+            # Показываем окно информации уровня и узнаем, зашел ли игрок в него
+            is_level_entered = self.current_level.show_info()
 
-            # Вызываем игру и записываем результат в переменную
-            is_level_completed = self.current_level.start_game()
+            if is_level_entered:
+                # Вызываем игру и записываем результат в переменную
+                is_level_completed = self.current_level.start_game()
 
-            if is_level_completed == 'quit':
-                self.state = self.STATES[1]
+                if is_level_completed == 'quit':
+                    self.state = self.STATES[1]
 
-            elif is_level_completed:
-                self.current_level.log_csv_data()
-                self.level_map.update_csv_data()
+                elif is_level_completed:
+                    self.current_level.log_csv_data()
+                    self.level_map.update_csv_data()
 
-                self.state = self.STATES[1]
+                    self.state = self.STATES[1]
 
     def start(self):
         while self.run:
