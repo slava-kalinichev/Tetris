@@ -163,7 +163,7 @@ class Game:
 
         return cleared_rows
 
-    def draw_instructions(self, score, record, next_tetromino):
+    def draw_instructions(self, score, record, next_tetromino, paused):
         x = GRID_WIDTH + 16  # Отступ от игрового поля
         y = 20  # Начальная позиция по вертикали
 
@@ -212,10 +212,37 @@ class Game:
                         )
             y += 235  # Отступ перед инструкцией
 
-        for line in INSTRUCTIONS:
-            text = font_controls.render(line, True, WHITE)
+        if not paused:
+            for line in LEVEL_GOALS:
+                text = font_controls.render(line, True, WHITE)
+                goal_state = False
+
+                if not self.line_goal and (line == LEVEL_GOALS[2] or line == LEVEL_GOALS[3]):
+                    continue
+                if line == LEVEL_GOALS[1]:
+                    if score >= self.score_goal:
+                        goal_state = font_controls.render('V', True, (0, 230, 0))
+                    else:
+                        goal_state = font_controls.render('X', True, (255, 0, 0))
+                elif line == LEVEL_GOALS[2]:
+                    if self.is_line_goal_completed:
+                        goal_state = font_controls.render('V', True, (0, 230, 0))
+                    else:
+                        goal_state = font_controls.render('X', True, (255, 0, 0))
+
+                self.screen.blit(text, (x, y))
+                if goal_state:
+                    self.screen.blit(goal_state, (x, y))
+                y += 30  # Отступ между строками
+
+            y = 570
+            text = font_controls.render('Controlls - Space', True, WHITE)
             self.screen.blit(text, (x, y))
-            y += 30  # Отступ между строками
+        else:
+            for line in INSTRUCTIONS:
+                text = font_controls.render(line, True, WHITE)
+                self.screen.blit(text, (x, y))
+                y += 30  # Отступ между строками
 
     def draw_border(self):
         # Рисуем рамку вокруг игрового поля
@@ -273,8 +300,6 @@ class Game:
         for (x, y), color in locked_positions.items():
             if 0 <= y < len(grid) and 0 <= x < len(grid[y]):
                 grid[y][x] = color
-
-    import csv
 
     def update_level_data(self):
         # Путь к файлу
@@ -622,7 +647,7 @@ class Game:
                 self.draw_grid(grid)
                 self.draw_tetromino(current_tetromino)
                 shadow.draw(self.screen)  # Отрисовываем проекцию
-                self.draw_instructions(score, record, next_tetromino)  # Рисуем инструкцию
+                self.draw_instructions(score, record, next_tetromino, paused)  # Рисуем инструкцию
                 self.draw_border()  # Рисуем рамку вокруг игрового поля
 
                 # Отрисовываем активные анимации
@@ -632,8 +657,9 @@ class Game:
                 # Если игра на паузе, отображаем сообщение
                 if paused:
                     pause_text = font_pause.render("Pause", True, WHITE)
-                    self.screen.blit(pause_text, (
-                    SCREEN_WIDTH // 2 - pause_text.get_width() // 2, SCREEN_HEIGHT // 2 - pause_text.get_height() // 2))
+                    p_x = GRID_WIDTH // 2 - pause_text.get_width() // 2
+                    p_y =  SCREEN_HEIGHT // 2 - pause_text.get_height() // 2
+                    self.screen.blit(pause_text, (p_x, p_y))
 
                 # Если нужно показать окно победы
                 if show_win_screen:
