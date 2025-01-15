@@ -55,6 +55,7 @@ font_level = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 30)
 font_start = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 35)
 font_pause = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 60)
 font_exit = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 25)
+font_specific = pygame.font.Font(None, 36)
 
 SCREEN_WIDTH = GRID_WIDTH + INFO_WIDTH
 SCREEN_HEIGHT = GRID_HEIGHT

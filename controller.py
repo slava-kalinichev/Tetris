@@ -134,6 +134,12 @@ class Controller:
                     self.level_map.update_csv_data()
 
                     self.state = self.STATES[1]
+            else:
+                # Если игрок не зашел в уровень, возвращаемся в меню выбора уровней
+                self.state = self.STATES[1]
+
+            # Обновляем отрисовку меню выбора уровней
+            self.manage_map_menu()
 
     def start(self):
         while self.run:

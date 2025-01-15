@@ -17,7 +17,7 @@ class LevelSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         # Расстановка уровней в матрице [[1 2 3 4 5], [6 7 8 9 10]]
-        self.rect.x = 100 * ((int(self.level) + 4) % 5) + 12
+        self.rect.x = 100 * ((int(self.level) + 4) % 5) + 15
         self.rect.y = 150 if int(self.level) <= 5 else SCREEN_HEIGHT - 225
 
     def update_image(self):
@@ -93,22 +93,90 @@ class LevelSprite(pygame.sprite.Sprite):
         return level_gameplay.get_completion()
 
     def show_info(self) -> bool:
-        # TODO: Реализовать меню отображения информации об уровне
-        """
-        Метод, показывающий окно, содержащее информацию о:
-        Какой это уровень, по типу Level 10
-        Сколько очков нужно набрать для победы Score Goal: 10.000
-        Нужно ли собрать 4 строки за раз (если нет, то пустая строка)
-        Личный рекорд игрока Personal Best (или Record): 123
+        # Размеры и позиция окна информации
+        info_width = 400
+        info_height = 300
+        info_x = (SCREEN_WIDTH - info_width) // 2
+        info_y = (SCREEN_HEIGHT - info_height) // 2
+        score_goal = LEVEL_DIFFICULTY_SETTINGS[MIN_POINTS][int(self.level)]
+        line_goal = LEVEL_DIFFICULTY_SETTINGS[MAKE_TETRIS][int(self.level)]
 
-        а также имеющий две кнопки:
-        играть
-        закрыть окно (крестик в правом верхнем углу)
-        :return: метод должен возвращать булевое значение True / False. Зашел ли игрок в уровень?
-        При получении нажатия окно в любом случае сворачивается
-        """
-        pass
+        # Текст информации об уровне
+        level_text = font_score.render(f"Level {self.level}", True, (255, 255, 255))
+        score_goal_text = font_base.render(f"Score Goal: {score_goal}", True, (255, 255, 255))
+        if line_goal:
+            line_goal_text = font_base.render("Required to Clear 4 Rows", True, (255, 255, 255))
+        else:
+            line_goal_text = font_base.render("-", True, (255, 255, 255))
+        personal_best_text = font_base.render(f"Personal Best: -", True, (255, 255, 255))
 
+        # Позиции текста
+        level_text_rect = level_text.get_rect(center=(info_width // 2, 40))
+        score_goal_text_rect = score_goal_text.get_rect(center=(info_width // 2, 90))
+        line_goal_text_rect = line_goal_text.get_rect(center=(info_width // 2, 130))
+        personal_best_text_rect = personal_best_text.get_rect(center=(info_width // 2, 170))
+
+        # Кнопка "Играть"
+        play_button = pygame.Rect(info_width // 2 - 75, info_height - 80, 150, 40)
+        play_text = font_score.render("Play", True, (255, 255, 255))
+        play_text_rect = play_text.get_rect(center=play_button.center)
+
+        # Кнопка "Закрыть"
+        close_button = pygame.Rect(info_width - 50, 20, 30, 30)
+        close_text = font_specific.render("x", True, (255, 255, 255))
+        close_text_rect = close_text.get_rect(center=close_button.center)
+
+        # Основной цикл окна информации
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_x, mouse_y = event.pos
+                    relative_mouse_x = mouse_x - info_x
+                    relative_mouse_y = mouse_y - info_y
+
+                    if play_button.collidepoint(relative_mouse_x, relative_mouse_y):
+                        return True  # Игрок нажал "Играть"
+
+                    if close_button.collidepoint(relative_mouse_x, relative_mouse_y):
+                        return False  # Игрок нажал "Закрыть"
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:  # Клавиша Enter
+                        return True  # Игрок нажал "Играть"
+                    if event.key == pygame.K_ESCAPE:
+                        return False  # Игрок нажал "Закрыть"
+
+            # Отрисовка окна информации
+            info_surface = pygame.Surface((info_width, info_height), pygame.SRCALPHA)  # Поверхность с прозрачностью
+            # Рисуем серую границу
+            pygame.draw.rect(info_surface, (128, 128, 128, 255), (0, 0, info_width, info_height), border_radius=25)
+            # Рисуем основное окно
+            pygame.draw.rect(info_surface, (0, 0, 0, 200), (5, 5, info_width - 10, info_height - 10), border_radius=20)
+
+            # Отрисовка текста
+            info_surface.blit(level_text, level_text_rect)
+            info_surface.blit(score_goal_text, score_goal_text_rect)
+            info_surface.blit(line_goal_text, line_goal_text_rect)
+            info_surface.blit(personal_best_text, personal_best_text_rect)
+
+            # Отрисовка кнопки "Играть"
+            pygame.draw.rect(info_surface, (0, 128, 0), play_button, border_radius=10)  # Зеленая кнопка "Играть"
+            info_surface.blit(play_text, play_text_rect)
+
+            # Отрисовка кнопки "Закрыть"
+            pygame.draw.rect(info_surface, (255, 255, 255), close_button, border_radius=10)  # Белая окантовка
+            pygame.draw.rect(info_surface, (255, 0, 0), close_button.inflate(-4, -4), border_radius=8)  # Красная кнопка
+            info_surface.blit(close_text, close_text_rect)
+
+            screen = pygame.display.get_surface()
+            screen.blit(info_surface, (info_x, info_y))
+            pygame.display.flip()
+
+        return False
 
 class LevelMap(pygame.sprite.Group):
     def __init__(self):

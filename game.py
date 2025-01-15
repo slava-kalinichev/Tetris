@@ -216,7 +216,7 @@ class Game:
             for line in LEVEL_GOALS:
                 text = font_controls.render(line, True, WHITE)
                 goal_state = False
-                self.line_goal = True
+                #self.line_goal = True
 
                 if not self.line_goal and line == LEVEL_GOALS[2]:
                     continue
