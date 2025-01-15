@@ -15,6 +15,13 @@ INSTRUCTIONS = [
         "Esc  - Exit"
 ]
 
+LEVEL_GOALS = [
+    'Level Goals:',
+    '   Score points',
+    '   Clear 4 rows at',
+    '       the same time'
+]
+
 # Цвета
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
