@@ -18,8 +18,7 @@ INSTRUCTIONS = [
 LEVEL_GOALS = [
     'Level Goals:',
     '   Score points',
-    '   Clear 4 rows at',
-    '       the same time'
+    '   Clear 4 rows'
 ]
 
 # Цвета
@@ -45,7 +44,7 @@ STANDARD_BUTTON_HEIGHT = 35
 # Размеры игрового поля (10x20 клеток - стандарт оригинала)
 GRID_WIDTH = 300
 GRID_HEIGHT = 600
-INFO_WIDTH = 200  # Ширина области для инструкции
+INFO_WIDTH = 205  # Ширина области для инструкции
 
 # Шрифты
 font_base = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 20) # Шрифт

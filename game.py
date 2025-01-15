@@ -216,13 +216,16 @@ class Game:
             for line in LEVEL_GOALS:
                 text = font_controls.render(line, True, WHITE)
                 goal_state = False
+                self.line_goal = True
 
-                if not self.line_goal and (line == LEVEL_GOALS[2] or line == LEVEL_GOALS[3]):
+                if not self.line_goal and line == LEVEL_GOALS[2]:
                     continue
                 if line == LEVEL_GOALS[1]:
                     if score >= self.score_goal:
+                        text = font_controls.render(f'{line}: {self.score_goal}', True, WHITE)
                         goal_state = font_controls.render('V', True, (0, 230, 0))
                     else:
+                        text = font_controls.render(f'{line}: {self.score_goal}', True, WHITE)
                         goal_state = font_controls.render('X', True, (255, 0, 0))
                 elif line == LEVEL_GOALS[2]:
                     if self.is_line_goal_completed:
@@ -236,7 +239,7 @@ class Game:
                 y += 30  # Отступ между строками
 
             y = 570
-            text = font_controls.render('Controlls - Space', True, WHITE)
+            text = font_controls.render('Controls - Space', True, WHITE)
             self.screen.blit(text, (x, y))
         else:
             for line in INSTRUCTIONS:
