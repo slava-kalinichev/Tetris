@@ -4,7 +4,7 @@ import os
 pygame.init()
 
 # Строковые значения
-GAME_NAME = "Тетрис"
+GAME_NAME = 'Tetrix'
 INSTRUCTIONS = [
         "PgUp  - Rotate",
         "PgDn  - Speed Up",
@@ -19,6 +19,7 @@ INSTRUCTIONS = [
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
+MENU_COLOR = pygame.Color(0x8B00FF)  # фиолетовый
 LOCKED_SHAPE_COLOR = (100, 100, 100)
 COLORS = (
     (0, 255, 255),
@@ -29,6 +30,10 @@ COLORS = (
     (255, 0, 0),
     (128, 0, 128)
 )
+
+# Стандарты
+STANDARD_BUTTON_WIDTH = 150
+STANDARD_BUTTON_HEIGHT = 35
 
 # Размеры игрового поля (10x20 клеток - стандарт оригинала)
 GRID_WIDTH = 300
