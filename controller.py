@@ -119,6 +119,9 @@ class Controller:
 
     def manage_level(self):
         if self.current_level:
+            # Показываем окно информации уровня
+            self.current_level.show_info()
+
             # Вызываем игру и записываем результат в переменную
             is_level_completed = self.current_level.start_game()
 

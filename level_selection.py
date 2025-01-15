@@ -92,6 +92,10 @@ class LevelSprite(pygame.sprite.Sprite):
 
         return level_gameplay.get_completion()
 
+    def show_info(self):
+        # TODO: Реализовать меню отображения информации об уровне
+        pass
+
 
 class LevelMap(pygame.sprite.Group):
     def __init__(self):
