@@ -26,6 +26,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
 MENU_COLOR = pygame.Color(0x8B00FF)  # фиолетовый
+WINDOWS_COLOR = pygame.Color(128, 128, 128) # серый
 LOCKED_SHAPE_COLOR = (100, 100, 100)
 COLORS = (
     (0, 255, 255),

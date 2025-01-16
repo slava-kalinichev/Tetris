@@ -3,6 +3,7 @@ import os
 from game import Game
 import csv
 from values import *
+from menu_handlers import *
 
 
 class LevelSprite(pygame.sprite.Sprite):
@@ -101,30 +102,33 @@ class LevelSprite(pygame.sprite.Sprite):
         score_goal = LEVEL_DIFFICULTY_SETTINGS[MIN_POINTS][int(self.level)]
         line_goal = LEVEL_DIFFICULTY_SETTINGS[MAKE_TETRIS][int(self.level)]
 
-        # Текст информации об уровне
-        level_text = font_score.render(f"Level {self.level}", True, (255, 255, 255))
-        score_goal_text = font_base.render(f"Score Goal: {score_goal}", True, (255, 255, 255))
-        if line_goal:
-            line_goal_text = font_base.render("Required to Clear 4 Rows", True, (255, 255, 255))
-        else:
-            line_goal_text = font_base.render("-", True, (255, 255, 255))
-        personal_best_text = font_base.render(f"Personal Best: -", True, (255, 255, 255))
+        # Создаем меню для окна информации
+        info_menu = Menu(info_width, info_height, color=WINDOWS_COLOR, border_width=3)
 
-        # Позиции текста
-        level_text_rect = level_text.get_rect(center=(info_width // 2, 40))
-        score_goal_text_rect = score_goal_text.get_rect(center=(info_width // 2, 90))
-        line_goal_text_rect = line_goal_text.get_rect(center=(info_width // 2, 130))
-        personal_best_text_rect = personal_best_text.get_rect(center=(info_width // 2, 170))
+        # Данные для текста: (текст, шрифт, цвет, позиция y)
+        text_data = [
+            (f"Level {self.level}", font_score, (255, 255, 255), 40),
+            (f"Score Goal: {score_goal}", font_base, (255, 255, 255), 90),
+            ("Required to Clear 4 Rows" if line_goal else "-", font_base, (255, 255, 255), 130),
+            (f"Personal Best: -", font_base, (255, 255, 255), 170),
+        ]
 
-        # Кнопка "Играть"
-        play_button = pygame.Rect(info_width // 2 - 75, info_height - 80, 150, 40)
-        play_text = font_score.render("Play", True, (255, 255, 255))
-        play_text_rect = play_text.get_rect(center=play_button.center)
+        # Отрисовка текста на поверхности меню
+        for text, font, color, y_pos in text_data:
+            rendered_text = font.render(text, True, color)
+            text_rect = rendered_text.get_rect(center=(info_width // 2, y_pos))
+            info_menu.draw_additional_surface(rendered_text, (text_rect.x, text_rect.y))
 
-        # Кнопка "Закрыть"
-        close_button = pygame.Rect(info_width - 50, 20, 30, 30)
-        close_text = font_specific.render("x", True, (255, 255, 255))
-        close_text_rect = close_text.get_rect(center=close_button.center)
+        # Данные для кнопок: (текст, функция, ширина, высота, шрифт, цвет, позиция)
+        button_data = [
+            ("Play", lambda: None, 150, 40, font_score, (0, 128, 0), (info_width // 2 - 75, info_height - 80)),
+            ("x", lambda: None, 30, 30, font_specific, (255, 0, 0), (info_width - 50, 20)),
+        ]
+
+        # Добавление кнопок в меню
+        for title, func, width, height, font, color, pos in button_data:
+            button = Button(title, func, width, height, font, color)
+            info_menu.add_button(button, pos)
 
         # Основной цикл окна информации
         running = True
@@ -138,11 +142,13 @@ class LevelSprite(pygame.sprite.Sprite):
                     relative_mouse_x = mouse_x - info_x
                     relative_mouse_y = mouse_y - info_y
 
-                    if play_button.collidepoint(relative_mouse_x, relative_mouse_y):
-                        return True  # Игрок нажал "Играть"
-
-                    if close_button.collidepoint(relative_mouse_x, relative_mouse_y):
-                        return False  # Игрок нажал "Закрыть"
+                    # Проверяем нажатие на кнопки
+                    for button in info_menu.buttons:
+                        if button.rect.collidepoint(relative_mouse_x, relative_mouse_y):
+                            if button.title == "Play":
+                                return True  # Игрок нажал "Играть"
+                            elif button.title == "x":
+                                return False  # Игрок нажал "Закрыть"
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Клавиша Enter
@@ -151,29 +157,8 @@ class LevelSprite(pygame.sprite.Sprite):
                         return False  # Игрок нажал "Закрыть"
 
             # Отрисовка окна информации
-            info_surface = pygame.Surface((info_width, info_height), pygame.SRCALPHA)  # Поверхность с прозрачностью
-            # Рисуем серую границу
-            pygame.draw.rect(info_surface, (128, 128, 128, 255), (0, 0, info_width, info_height), border_radius=25)
-            # Рисуем основное окно
-            pygame.draw.rect(info_surface, (0, 0, 0, 200), (5, 5, info_width - 10, info_height - 10), border_radius=20)
-
-            # Отрисовка текста
-            info_surface.blit(level_text, level_text_rect)
-            info_surface.blit(score_goal_text, score_goal_text_rect)
-            info_surface.blit(line_goal_text, line_goal_text_rect)
-            info_surface.blit(personal_best_text, personal_best_text_rect)
-
-            # Отрисовка кнопки "Играть"
-            pygame.draw.rect(info_surface, (0, 128, 0), play_button, border_radius=10)  # Зеленая кнопка "Играть"
-            info_surface.blit(play_text, play_text_rect)
-
-            # Отрисовка кнопки "Закрыть"
-            pygame.draw.rect(info_surface, (255, 255, 255), close_button, border_radius=10)  # Белая окантовка
-            pygame.draw.rect(info_surface, (255, 0, 0), close_button.inflate(-4, -4), border_radius=8)  # Красная кнопка
-            info_surface.blit(close_text, close_text_rect)
-
             screen = pygame.display.get_surface()
-            screen.blit(info_surface, (info_x, info_y))
+            screen.blit(info_menu.surface, (info_x, info_y))
             pygame.display.flip()
 
         return False

@@ -71,24 +71,26 @@ class Button:
 
 
 class Menu:
-    def __init__(self, width, height, color=MENU_COLOR):
+    def __init__(self, width, height, color=MENU_COLOR, border_width=5):
         """
         Класс меню
         :param width: параметр размера (ширина)
         :param height: параметр размера (высота)
         :param color: параметр цвета границ меню
+        :param border_width: параметр толщины границы меню
         """
 
         self.width = width
         self.height = height
         self.color = color
+        self.border_width = border_width
 
         # Создаем поверхность и прямоугольник меню
         self.surface = pygame.Surface((self.width, self.height))
         self.rect = self.surface.get_rect()
 
         # Рисуем границы меню
-        pygame.draw.rect(self.surface, self.color, self.rect, 5, 10)
+        pygame.draw.rect(self.surface, self.color, self.rect, self.border_width, 10)
 
         # Создаем атрибут хранения кнопок
         self.buttons = []
