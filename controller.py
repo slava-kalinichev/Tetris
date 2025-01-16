@@ -1,9 +1,11 @@
 import pygame
+from pygame.examples.go_over_there import running
 from pygame.examples.grid import TITLE
 
 from level_selection import LevelMap
 from values import *
-from menu_handlers import *
+from menu_handlers import Button, Menu, WinMenu
+from copy import deepcopy
 
 
 class Controller:
@@ -26,6 +28,7 @@ class Controller:
         }
 
         self.state = self.STATES[0]
+        self.jump_to_level = False
 
         # Атрибуты экрана
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -119,8 +122,14 @@ class Controller:
 
     def manage_level(self):
         if self.current_level:
-            # Показываем окно информации уровня и узнаем, зашел ли игрок в него
-            is_level_entered = self.current_level.show_info()
+            # Проверяем, нужно ли показывать окно информации
+            if not self.jump_to_level:
+                # Показываем окно информации уровня и узнаем, зашел ли игрок в него
+                is_level_entered = any(self.current_level.show_info())
+
+            else:
+                is_level_entered = True
+                self.jump_to_level = False
 
             if is_level_entered:
                 # Вызываем игру и записываем результат в переменную
@@ -133,13 +142,61 @@ class Controller:
                     self.current_level.log_csv_data()
                     self.level_map.update_csv_data()
 
-                    self.state = self.STATES[1]
-            else:
-                # Если игрок не зашел в уровень, возвращаемся в меню выбора уровней
-                self.state = self.STATES[1]
+                    level_win_menu = WinMenu(300, 300)
+                    option = self.manage_win_menu(level_win_menu)
 
-            # Обновляем отрисовку меню выбора уровней
-            self.manage_map_menu()
+                    if 'continue' in option:
+                        # TODO: реализовать кнопку continue
+                        print('works')
+
+                    elif 'main menu' in option:
+                        self.state = self.STATES[1]
+                        self.current_level = None
+
+                    elif 'next' in option:
+                        for level in self.level_map:
+                            if int(level.level) == int(self.current_level.level) + 1:
+                                self.current_level = level
+                                self.jump_to_level = True
+                                break
+
+    def manage_win_menu(self, win_menu):
+        """
+        Метод, который принимает меню, и ждет, пока игрок не нажмет какую-либо кнопку
+        :param win_menu: меню победного окна
+        :return:
+        """
+
+        # Рисуем меню и сдвигаем его хит боксы
+        x_coord = (SCREEN_WIDTH - win_menu.width) // 2
+        y_coord = (SCREEN_HEIGHT - win_menu.height) // 2
+
+        self.screen.blit(win_menu.get_surface(), (x_coord, y_coord))
+        win_menu.move_to(x_coord, y_coord)
+
+        # Обновляем экран
+        pygame.display.flip()
+
+        # Создаем переменную выбранной опции
+        option = []
+
+        # Цикл выбора
+        still_choosing = True
+        while still_choosing:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    still_choosing = False
+                    self.stop()
+
+                # Получаем выбранную опцию
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Записываем список всех полученных значений в переменную
+                    option = win_menu.update(event.pos, return_result=True)
+
+            # Если хотя бы одна из кнопок нажата, то список будет иметь одно значение, отличающееся от None
+            if any(option):
+                return option
+
 
     def start(self):
         while self.run:

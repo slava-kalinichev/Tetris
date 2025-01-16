@@ -7,6 +7,7 @@ from score_animation import *
 from tetromino import Tetromino, LockedTetromino
 from shadow import Shadow
 from confetti_animation import ConfettiParticle
+from menu_handlers import *
 
 
 class Game:
@@ -15,6 +16,8 @@ class Game:
 
         self.level = level
         self.is_level_completed = False
+
+        self.paused = False  # Состояние паузы
 
         self.confetti_particles = []  # Список для хранения частиц конфетти
 
@@ -304,92 +307,8 @@ class Game:
             if 0 <= y < len(grid) and 0 <= x < len(grid[y]):
                 grid[y][x] = color
 
-    def update_level_data(self):
-        # Путь к файлу
-        file_path = "data/level_status.csv"
-
-        # Чтение данных из файла
-        with open(file_path, mode='r', newline='') as file:
-            reader = csv.reader(file)
-            rows = list(reader)  # Читаем все строки в список
-
-        # Обновление данных
-        for row in rows:
-            # Разделяем строку по точке с запятой
-            data = row[0].split(';')
-
-            # Если первый столбец равен текущему уровню
-            if data[0] == str(self.level):
-                data[-1] = '1'  # Меняем последний столбец на 1
-
-            # Если первый столбец равен следующему уровню
-            if data[0] == str(int(self.level) + 1):
-                data[1] = '1'  # Меняем средний столбец на 1
-
-            # Объединяем данные обратно в строку с разделителем ';'
-            row[0] = ';'.join(data)
-
-        # Запись обновленных данных обратно в файл
-        with open(file_path, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerows(rows)  # Записываем все строки обратно в файл
-
-    def draw_win_screen(self):
-        '''Экран прохождения уровня'''
-        # Создаем поверхность для окна победы
-        win_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        win_surface.fill(BLACK)
-
-        # Шрифт для текста и кнопок
-        font = pygame.font.Font(FONT_FILE, 40)
-        button_font = pygame.font.Font(FONT_FILE, 35)
-
-        win_text = font.render("You passed the level", True, WHITE)
-        win_text_rect = win_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
-
-        # Кнопка "Menu"
-        self.menu_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50)
-        menu_text = button_font.render("Menu", True, WHITE)
-        menu_text_rect = menu_text.get_rect(center=self.menu_button.center)
-
-        # Кнопка "Continue"
-        self.continue_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 70, 200, 50)
-        continue_text = button_font.render("Continue", True, WHITE)
-        continue_text_rect = continue_text.get_rect(center=self.continue_button.center)
-
-        # Кнопка "Next" (новая кнопка)
-        self.next_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 140, 200, 50)
-        next_text = button_font.render("Next", True, WHITE)
-        next_text_rect = next_text.get_rect(center=self.next_button.center)
-
-        # Отрисовка текста и кнопок
-        win_surface.blit(win_text, win_text_rect)
-        pygame.draw.rect(win_surface, GRAY, self.menu_button)
-        win_surface.blit(menu_text, menu_text_rect)
-        pygame.draw.rect(win_surface, GRAY, self.continue_button)
-        win_surface.blit(continue_text, continue_text_rect)
-        pygame.draw.rect(win_surface, (0, 0, 255), self.next_button)  # Синий цвет для кнопки "Next"
-        win_surface.blit(next_text, next_text_rect)
-
-        # Отображение окна победы на основном экране
-        self.screen.blit(win_surface, (0, 0))
-
-        # Проверяем, прошло ли 2 секунды
-        if self.con_check.is_animation_done(4000):
-            self.con_run = False
-
-        if self.con_run:
-            for _ in range(10):  # Добавляем 10 новых частиц
-                x = random.randint(0, SCREEN_WIDTH)
-                y = random.randint(0, SCREEN_HEIGHT)
-                self.confetti_particles.append(ConfettiParticle(x, y))
-
-            # Обновляем и отрисовываем частицы конфетти
-            for particle in self.confetti_particles:
-                particle.update()
-                particle.draw(self.screen)
-
-        pygame.display.update()
+    def stop(self):
+        self.paused = True
 
     def play(self):
         while True:
@@ -403,10 +322,9 @@ class Game:
             accelerated_fall_speed = 0.05
             score = 0
             record = self.load_high_score()
-            paused = False  # Состояние паузы
-            self.con_run = True
-            self.con_check = ConfettiParticle()
 
+            # Обнуляем значения предыдущего уровня
+            self.is_line_goal_completed = False
 
             # Состояние кнопок - словарь для считывания длительного нажатия на кнопки
             keys = {
@@ -417,28 +335,29 @@ class Game:
 
             running = True
             game_over = False
-            show_win_screen = False  # Флаг для отображения окна победы
 
             while running:
                 # Проверяем наличие нужных очков
-                if score >= self.score_goal and not self.is_level_completed :
+                if score >= self.score_goal:
                     # Проверяем, установлена ли цель по собиранию линий
                     if self.line_goal:
                         # Проверяем, собирали ли мы 4 линии за раз
                         if self.is_line_goal_completed:
-                            paused = True
-                            show_win_screen = True  # Показываем окно победы
+                            self.paused = True
+                            self.is_level_completed = True
+                            return
 
                     # Если цель не установлена, уровень пройден
                     else:
-                        paused = True
-                        show_win_screen = True  # Показываем окно победы
+                        self.paused = True
+                        self.is_level_completed = True
+                        return
 
                 grid = self.create_grid(locked_positions)
                 fall_time += self.clock.get_rawtime()
                 self.clock.tick()
 
-                if not game_over and not paused:
+                if not game_over and not self.paused:
                     if fall_time / 1000 >= self.fall_speed:
                         fall_time = 0
                         current_tetromino.y += 1
@@ -514,14 +433,6 @@ class Game:
                             self.is_level_completed = 'quit'
                             return 'quit'
 
-                        if event.key == pygame.K_RETURN and show_win_screen:  # Клавиша Enter
-                            # TODO: сделать переход на другой уровень (1)
-                            self.is_level_completed = True  # Не трогать
-                            self.update_level_data()  # Не трогать или полностью переделать
-                            self.selected_level = self.selected_level + 1  # Переход на следующий уровень
-                            self.play()
-                            return  # Выход из текущего уровня и запуск следующего
-
                         if event.key == pygame.K_LEFT:
                             current_tetromino.x -= 1
 
@@ -560,27 +471,10 @@ class Game:
                                 current_tetromino.rotate()
 
                         if event.key == pygame.K_p or event.key == pygame.K_SPACE:  # Пауза (P)
-                            paused = not paused  # Переключаем состояние паузы
+                            self.paused = not self.paused  # Переключаем состояние паузы
 
                         if event.key == pygame.K_r:  # Нажатие R
                             self.play()
-                            return
-
-                    if event.type == pygame.MOUSEBUTTONDOWN and show_win_screen:
-                        # Обработка нажатий на кнопки в окне победы
-                        if self.menu_button.collidepoint(event.pos):
-                            self.is_level_completed = True
-                            return 'quit'
-                        if self.continue_button.collidepoint(event.pos):
-                            show_win_screen = False  # Закрываем окно победы
-                            self.is_level_completed = True
-                        if self.next_button.collidepoint(event.pos):  # Обработка нажатия на кнопку "Next"
-                            #TODO: сделать переход на другой уровень (2)
-                            self.is_level_completed = True  # Не трогать
-                            self.update_level_data()    # Не трогать или полностью переделать
-                            self.selected_level = self.selected_level + 1  # Переход на следующий уровень
-                            self.play()
-                            return  # Выход из текущего уровня и запуск следующего
 
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_LEFT:
@@ -650,7 +544,7 @@ class Game:
                 self.draw_grid(grid)
                 self.draw_tetromino(current_tetromino)
                 shadow.draw(self.screen)  # Отрисовываем проекцию
-                self.draw_instructions(score, record, next_tetromino, paused)  # Рисуем инструкцию
+                self.draw_instructions(score, record, next_tetromino, self.paused)  # Рисуем инструкцию
                 self.draw_border()  # Рисуем рамку вокруг игрового поля
 
                 # Отрисовываем активные анимации
@@ -658,14 +552,10 @@ class Game:
                     animation.draw(self.screen)
 
                 # Если игра на паузе, отображаем сообщение
-                if paused:
+                if self.paused:
                     pause_text = font_pause.render("Pause", True, WHITE)
                     p_x = GRID_WIDTH // 2 - pause_text.get_width() // 2
                     p_y =  SCREEN_HEIGHT // 2 - pause_text.get_height() // 2
                     self.screen.blit(pause_text, (p_x, p_y))
-
-                # Если нужно показать окно победы
-                if show_win_screen:
-                    self.draw_win_screen()
 
                 pygame.display.update()

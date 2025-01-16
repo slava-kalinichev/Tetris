@@ -26,6 +26,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
 MENU_COLOR = (139, 0, 255)  # фиолетовый
+WIN_MENU_COLOR = (237, 255, 33)  # желтый
 WINDOWS_COLOR = pygame.Color(128, 128, 128) # серый
 LOCKED_SHAPE_COLOR = (100, 100, 100)
 COLORS = (
@@ -47,15 +48,21 @@ GRID_WIDTH = 300
 GRID_HEIGHT = 600
 INFO_WIDTH = 205  # Ширина области для инструкции
 
+# Файлы
+RECORD_FILE = os.path.join("data", "high_score.txt")
+LEVELS_FILE = os.path.join("data", "level_status.csv")
+CLOSED_LEVEL_PATH = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
+FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
+
 # Шрифты
-font_base = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 20) # Шрифт
-font_score = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 24) # Шрифт для счета
-font_controls = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 16)
-font_title = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 40)
-font_level = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 30)
-font_start = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 35)
-font_pause = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 60)
-font_exit = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", 25)
+font_base = pygame.font.Font(FONT_FILE, 20) # Шрифт
+font_score = pygame.font.Font(FONT_FILE, 24) # Шрифт для счета
+font_controls = pygame.font.Font(FONT_FILE, 16)
+font_title = pygame.font.Font(FONT_FILE, 40)
+font_level = pygame.font.Font(FONT_FILE, 30)
+font_start = pygame.font.Font(FONT_FILE, 35)
+font_pause = pygame.font.Font(FONT_FILE, 60)
+font_exit = pygame.font.Font(FONT_FILE, 25)
 font_specific = pygame.font.Font(None, 36)
 
 SCREEN_WIDTH = GRID_WIDTH + INFO_WIDTH
@@ -73,13 +80,7 @@ move_sound = pygame.mixer.Sound("assets/SFX/05 Common.mp3")  # Звук движ
 rotate_sound = pygame.mixer.Sound("assets/SFX/05 Common.mp3")  # Звук поворота
 clear_sound = pygame.mixer.Sound("assets/SFX/07 Stage Clear.mp3")  # Звук удаления строки
 game_over_sound = pygame.mixer.Sound("assets/SFX/08 Game Over.mp3")  # Звук поражения
-mainsfx_sound = pygame.mixer.Sound("assets/SFX/19 SFX.mp3")  # Тема
-
-# Файлы
-RECORD_FILE = os.path.join("data", "high_score.txt")
-LEVELS_FILE = os.path.join("data", "level_status.csv")
-CLOSED_LEVEL_PATH = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
-FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
+main_sfx_sound = pygame.mixer.Sound("assets/SFX/19 SFX.mp3")  # Тема
 
 # Параметры сложности
 SPEED = 'speed'
@@ -105,7 +106,7 @@ LEVEL_DIFFICULTY_SETTINGS = {
     },
 
     MIN_POINTS: {
-        1: 5_000,
+        1: 1,
         2: 10_000,
         3: 15_000,
         4: 20_000,

@@ -102,7 +102,7 @@ class Menu:
         # Создаем атрибут хранения хит боксов
         self.rects = []
 
-    def add_button(self, button: Button, x, y):
+    def add_button(self, button: Button, x=None, y=0):
         """
         Метод добавления новой кнопки.
         При создании нового экземпляра следует использовать его
@@ -139,11 +139,30 @@ class Menu:
             self.surface.blit(additional_surface, (x, y))
 
     def update(self, mouse_pos, return_result=False):
-        for button in self.buttons:
-            if return_result:
-                return button.click(mouse_pos, return_result=True)
+        """
+        Метод, запускающий обновление всех кнопок. Когда вам требуется получить результат нажатий,
+        используйте параметр return_result
+        :param mouse_pos: координаты мышки
+        :param return_result: нужно ли вернуть полученные значения
+        :return:
+        """
 
-            button.click(mouse_pos)
+        # Список для возвращаемых значений
+        res = []
+
+        # Проверяем все кнопки
+        for button in self.buttons:
+            # Если нам нужно сохранять результат, записываем его в список
+            if return_result:
+                res.append(button.click(mouse_pos, return_result=True))
+
+            # Иначе просто нажимаем на кнопку
+            else:
+                button.click(mouse_pos)
+
+        # Возвращаем результат
+        if return_result:
+            return res
 
     def get_surface(self):
         return self.surface
@@ -154,3 +173,25 @@ class Menu:
             rectangle.y += y - self.rect.y
 
         self.rect.x, self.rect.y = x, y
+
+
+# Для удобства создаем класс победного окна
+class WinMenu(Menu):
+    def __init__(self, width, height):
+        super().__init__(width, height, color=WIN_MENU_COLOR)
+
+        # Создаем текст победного окна
+        win_text = font_base.render('You Passed The Level!', True, 'white')
+
+        # Создаем кнопки
+        continue_button = Button('Continue', lambda: 'continue')
+        go_to_menu_button = Button('Menu', lambda: 'main menu')
+        go_to_next_level_button = Button('Next', lambda: 'next')
+
+        data_buttons = [go_to_next_level_button, go_to_menu_button, continue_button]
+
+        self.draw_additional_surface(win_text, y=50)
+
+        for button in range(len(data_buttons)):
+            coord = self.height - 75 - button * 50
+            self.add_button(data_buttons[button], y=coord)
