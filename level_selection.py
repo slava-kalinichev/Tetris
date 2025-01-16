@@ -114,21 +114,20 @@ class LevelSprite(pygame.sprite.Sprite):
         ]
 
         # Отрисовка текста на поверхности меню
-        for text, font, color, y_pos in text_data:
+        for coord, (text, font, color, y_pos) in enumerate(text_data):
             rendered_text = font.render(text, True, color)
-            text_rect = rendered_text.get_rect(center=(info_width // 2, y_pos))
-            info_menu.draw_additional_surface(rendered_text, (text_rect.x, text_rect.y))
+            info_menu.draw_additional_surface(rendered_text, y=coord * 45 + 25)
 
         # Данные для кнопок: (текст, функция, ширина, высота, шрифт, цвет, позиция)
         button_data = [
-            ("Play", lambda: None, 150, 40, font_score, (0, 128, 0), (info_width // 2 - 75, info_height - 80)),
-            ("x", lambda: None, 30, 30, font_specific, (255, 0, 0), (info_width - 50, 20)),
+            ("Play", lambda: True, 150, 40, font_score, (0, 128, 0), (info_width // 2 - 75, info_height - 80)),
+            ("x", lambda: False, 30, 30, font_specific, (255, 0, 0), (info_width - 50, 20)),
         ]
 
         # Добавление кнопок в меню
         for title, func, width, height, font, color, pos in button_data:
             button = Button(title, func, width, height, font, color)
-            info_menu.add_button(button, pos)
+            info_menu.add_button(button, *pos)
 
         # Основной цикл окна информации
         running = True
@@ -138,30 +137,23 @@ class LevelSprite(pygame.sprite.Sprite):
                     pygame.quit()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_x, mouse_y = event.pos
-                    relative_mouse_x = mouse_x - info_x
-                    relative_mouse_y = mouse_y - info_y
-
-                    # Проверяем нажатие на кнопки
-                    for button in info_menu.buttons:
-                        if button.rect.collidepoint(relative_mouse_x, relative_mouse_y):
-                            if button.title == "Play":
-                                return True  # Игрок нажал "Играть"
-                            elif button.title == "x":
-                                return False  # Игрок нажал "Закрыть"
+                    return info_menu.update(event.pos, return_result=True)
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Клавиша Enter
                         return True  # Игрок нажал "Играть"
+
                     if event.key == pygame.K_ESCAPE:
                         return False  # Игрок нажал "Закрыть"
 
             # Отрисовка окна информации
             screen = pygame.display.get_surface()
             screen.blit(info_menu.surface, (info_x, info_y))
+            info_menu.move_to(info_x, info_y)
             pygame.display.flip()
 
         return False
+
 
 class LevelMap(pygame.sprite.Group):
     def __init__(self):

@@ -67,9 +67,9 @@ class Controller:
             y_coord = 400 + 50 * button_index
 
             # Добавляем кнопку
-            self.main_menu.add_button(button, (x_coord, y_coord))
+            self.main_menu.add_button(button, x_coord, y_coord)
 
-        self.main_menu.draw_additional_surface(self.title, (SCREEN_WIDTH // 2 - self.title.get_width()  // 2, 100))
+        self.main_menu.draw_additional_surface(self.title, SCREEN_WIDTH // 2 - self.title.get_width() // 2, 100)
 
         self.run = True
 

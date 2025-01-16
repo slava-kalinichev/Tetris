@@ -42,15 +42,19 @@ class Button:
         self.surface.blit(self.message, (self.message_x_coord, self.message_y_coord))
 
 
-    def click(self, mouse_position: tuple[int, int]):
+    def click(self, mouse_position: tuple[int, int], return_result=False):
         """
         Метод обработки нажатия
         :param mouse_position: параметр расположения мышки
+        :param return_result: имеет ли функция возвращаемое значение
         :return:
         """
 
         # Вызываем собственную функцию при пересечении координат мышки и прямоугольника
         if self.rect.collidepoint(*mouse_position):
+            if return_result:
+                return self.function()
+
             self.function()
 
     def get_surface(self):
@@ -95,38 +99,58 @@ class Menu:
         # Создаем атрибут хранения кнопок
         self.buttons = []
 
-    def add_button(self, button: Button, coordinates: tuple[float, float]):
+        # Создаем атрибут хранения хит боксов
+        self.rects = []
+
+    def add_button(self, button: Button, x, y):
         """
         Метод добавления новой кнопки.
         При создании нового экземпляра следует использовать его
         :param button: объект класса Button
-        :param coordinates: место, в которое добавится кнопка
+        :param x:
+        :param y:
         :return:
         """
 
         self.buttons.append(button)
-        self.draw_additional_surface(button.get_surface(), coordinates, surface_rect=button.get_rect())
+        self.draw_additional_surface(button.get_surface(), x, y, surface_rect=button.get_rect())
 
-    def draw_additional_surface(self, additional_surface: pygame.Surface, coordinates: tuple[float, float], surface_rect=None):
+    def draw_additional_surface(self, additional_surface: pygame.Surface, x=None, y=0, surface_rect=None):
         """
         Метод отрисовки новой поверхности.
         Используется при добавлении поверхности к основному меню
-        :param additional_surface: Новая поверхность, которую требуется нарисовать.
-        :param coordinates: Место, в которое нужно добавить поверхность
+        :param additional_surface: Новая поверхность, которую требуется нарисовать
+        :param x: координата по иксу. Если нет - то центр
+        :param y: координата по игреку. Если нет - то ноль
         :param surface_rect: Прямоугольник, если у поверхности имеется хит бокс (Необходимо для кнопок)
         :return:
         """
 
+        if x is None:
+            x = (self.surface.get_width() - additional_surface.get_width()) // 2
+
         if surface_rect:
-            surface_rect.x, surface_rect.y = coordinates
+            surface_rect.x, surface_rect.y = x, y
             self.surface.blit(additional_surface, surface_rect)
 
-        else:
-            self.surface.blit(additional_surface, coordinates)
+            self.rects.append(surface_rect)
 
-    def update(self, mouse_pos):
+        else:
+            self.surface.blit(additional_surface, (x, y))
+
+    def update(self, mouse_pos, return_result=False):
         for button in self.buttons:
+            if return_result:
+                return button.click(mouse_pos, return_result=True)
+
             button.click(mouse_pos)
 
     def get_surface(self):
         return self.surface
+
+    def move_to(self, x, y):
+        for rectangle in self.rects:
+            rectangle.x += x - self.rect.x
+            rectangle.y += y - self.rect.y
+
+        self.rect.x, self.rect.y = x, y
