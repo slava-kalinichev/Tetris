@@ -1,6 +1,4 @@
 import pygame
-from pygame.examples.go_over_there import running
-from pygame.examples.grid import TITLE
 
 from level_selection import LevelMap
 from values import *
