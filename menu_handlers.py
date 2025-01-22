@@ -180,10 +180,8 @@ class WinMenu(Menu):
     def __init__(self, width, height):
         super().__init__(width, height, color=WIN_MENU_COLOR)
 
-        # Создаем текст победного окна
         win_text = font_base.render('You Passed The Level!', True, 'white')
 
-        # Создаем кнопки
         continue_button = Button('Continue', lambda: 'continue')
         go_to_menu_button = Button('Menu', lambda: 'main menu')
         go_to_next_level_button = Button('Next', lambda: 'next')
@@ -195,3 +193,32 @@ class WinMenu(Menu):
         for button in range(len(data_buttons)):
             coord = self.height - 75 - button * 50
             self.add_button(data_buttons[button], y=coord)
+
+        self.start_y = 2 * height
+        self.current_y = self.start_y
+        self.target_y = (SCREEN_HEIGHT - self.height) // 2
+        self.rect.x = (SCREEN_WIDTH - self.width) // 2
+        self.animation_speed = 15
+        self.animation_done = False
+
+    def move_up(self, screen, y):
+        if not self.animation_done:
+            if self.current_y > self.target_y:
+                # Очищаем предыдущую позицию окна
+                screen.fill(BLACK, (self.rect.x, self.current_y, self.rect.width, self.rect.height))
+
+                self.current_y -= self.animation_speed
+            else:
+                self.current_y = self.target_y
+                self.animation_done = True
+
+            # Обновляем позицию окна и всех его элементов
+            self.move_to(self.rect.x, self.current_y)
+
+            # Рисуем окно на новой позиции
+            screen.blit(self.surface, (self.rect.x, self.current_y))
+
+    def check(self):
+        return not self.animation_done
+
+

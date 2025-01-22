@@ -141,7 +141,35 @@ class Controller:
                     self.level_map.update_csv_data()
 
                     level_win_menu = WinMenu(300, 300)
+
+                    popup_y = SCREEN_HEIGHT
+                    popup_speed = 5
+                    clock = pygame.time.Clock()
+                    # Поверхность для сохранения фона
+                    background_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+                    background_surface.blit(self.screen, (0, 0))
+
+
+                    running = True
+                    while running:
+                        popup_active = level_win_menu.check()
+                        if not popup_active:
+                            running = False
+
+                        # Логика выезжающего окна
+                        if popup_active:
+                            if popup_y > (SCREEN_HEIGHT - 300) // 2:
+                                popup_y -= popup_speed
+                            # Восстановление фона
+                            self.screen.blit(background_surface, (0, 0))
+                            level_win_menu.move_up(self.screen, popup_y)
+
+                        pygame.display.flip()
+                        clock.tick(FPS)
+
+                    level_win_menu = WinMenu(300, 300)
                     option = self.manage_win_menu(level_win_menu)
+                    print(option)
 
                     if 'continue' in option:
                         # TODO: реализовать кнопку continue

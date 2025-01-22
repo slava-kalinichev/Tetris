@@ -139,12 +139,12 @@ class LevelSprite(pygame.sprite.Sprite):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     return info_menu.update(event.pos, return_result=True)
 
-                if event.type == pygame.KEYDOWN:
+                '''if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Клавиша Enter
                         return True  # Игрок нажал "Играть"
 
                     if event.key == pygame.K_ESCAPE:
-                        return False  # Игрок нажал "Закрыть"
+                        return False  # Игрок нажал "Закрыть"'''
 
             # Отрисовка окна информации
             screen = pygame.display.get_surface()
