@@ -197,15 +197,15 @@ class WinMenu(Menu):
         self.start_y = 2 * height
         self.current_y = self.start_y
         self.target_y = (SCREEN_HEIGHT - self.height) // 2
-        self.rect.x = (SCREEN_WIDTH - self.width) // 2
+        self.const_x = (SCREEN_WIDTH - self.width) // 2
         self.animation_speed = 15
         self.animation_done = False
 
-    def move_up(self, screen, y):
+    def move_up(self, screen):
         if not self.animation_done:
             if self.current_y > self.target_y:
                 # Очищаем предыдущую позицию окна
-                screen.fill(BLACK, (self.rect.x, self.current_y, self.rect.width, self.rect.height))
+                screen.fill(BLACK, (self.const_x, self.current_y, self.rect.width, self.rect.height))
 
                 self.current_y -= self.animation_speed
             else:
@@ -213,10 +213,10 @@ class WinMenu(Menu):
                 self.animation_done = True
 
             # Обновляем позицию окна и всех его элементов
-            self.move_to(self.rect.x, self.current_y)
+            self.move_to(self.const_x, self.current_y)
 
             # Рисуем окно на новой позиции
-            screen.blit(self.surface, (self.rect.x, self.current_y))
+            screen.blit(self.surface, (self.const_x, self.current_y))
 
     def check(self):
         return not self.animation_done

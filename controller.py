@@ -141,7 +141,6 @@ class Controller:
                     self.level_map.update_csv_data()
 
                     level_win_menu = WinMenu(300, 300)
-
                     popup_y = SCREEN_HEIGHT
                     popup_speed = 5
                     clock = pygame.time.Clock()
@@ -162,14 +161,12 @@ class Controller:
                                 popup_y -= popup_speed
                             # Восстановление фона
                             self.screen.blit(background_surface, (0, 0))
-                            level_win_menu.move_up(self.screen, popup_y)
+                            level_win_menu.move_up(self.screen)
 
                         pygame.display.flip()
                         clock.tick(FPS)
 
-                    level_win_menu = WinMenu(300, 300)
                     option = self.manage_win_menu(level_win_menu)
-                    print(option)
 
                     if 'continue' in option:
                         # TODO: реализовать кнопку continue
