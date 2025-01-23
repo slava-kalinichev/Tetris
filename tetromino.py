@@ -1,3 +1,5 @@
+import pygame
+
 from values import *
 import random
 
@@ -55,6 +57,22 @@ class Tetromino:
                         if self.y + y >= 0 and grid[self.y + y][self.x + x] != BLACK:
                             return False
         return True
+
+    def draw(self, surface: pygame.Surface):
+        for y in range(len(self.shape)):
+            row = self.shape[y]
+
+            for x in range(len(row)):
+                cell = row[x]
+
+                if cell:
+                    tmp_rect = (
+                    (self.x + x) * BLOCK_SIZE,
+                    (self.y + y) * BLOCK_SIZE,
+                    BLOCK_SIZE,
+                    BLOCK_SIZE
+                    )
+                    pygame.draw.rect(surface, self.color, tmp_rect, 0)
 
     def get_shape(self):
         return self.shape

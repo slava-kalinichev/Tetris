@@ -81,23 +81,6 @@ class Game:
         for x in range(len(grid[0])):
             pygame.draw.line(self.screen, GRAY, (x * BLOCK_SIZE, 0), (x * BLOCK_SIZE, GRID_HEIGHT))
 
-    def draw_tetromino(self, tetromino):
-        shape = tetromino.get_shape()
-        for y in range(len(shape)):
-            row = shape[y]
-
-            if isinstance(row, list):
-                for x in range(len(row)):
-                    cell = row[x]
-
-                    if cell:
-                        tmp_rect = ((tetromino.x + x) * BLOCK_SIZE, (tetromino.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
-                        pygame.draw.rect(self.screen,tetromino.color, tmp_rect,0)
-
-                        # Если это LockedTetromino, рисуем свечение
-                        if isinstance(tetromino, LockedTetromino):
-                            self.draw_glow(self.screen, (255, 255, 255), pygame.Rect(tmp_rect), glow_radius=3, alpha=70)
-
     def draw_glow(self, screen, color, rect, glow_radius, alpha):
         """
         Рисует свечение вокруг прямоугольника.
@@ -543,7 +526,7 @@ class Game:
                 # Отрисовка
                 self.screen.fill(BLACK)  # Очистка экрана
                 self.draw_field(grid)  # Рисуем содержимое поля
-                self.draw_tetromino(current_tetromino)
+                current_tetromino.draw(self.screen)  # Рисуем фигуру
                 shadow.draw(self.screen)  # Отрисовываем проекцию
                 self.draw_instructions(score, record, next_tetromino, self.paused)  # Рисуем инструкцию
                 self.draw_border()  # Рисуем рамку вокруг игрового поля
