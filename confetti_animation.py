@@ -1,31 +1,80 @@
-import random
 import pygame
-import time
+import random
+from values import *
 
-class ConfettiParticle:
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
-        self.size = random.randint(5, 10)  # Случайный размер
-        self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))  # Случайный цвет
-        self.speed_x = random.uniform(-1, 1)  # Уменьшенная скорость по X
-        self.speed_y = random.uniform(-2, -0.5)  # Уменьшенная скорость по Y
-        self.start_time = int(time.time() * 1000)  # Время создания частицы
-        self.alpha = 255  # Начальная прозрачность (255 — полностью непрозрачная)
+# Константы
+GRAVITY = 0.2
+FPS = 80
+COLORS = [
+    (255, 0, 0), (0, 255, 0), (0, 0, 255),
+    (255, 255, 0), (255, 0, 255), (0, 255, 255)
+]
+
+# Класс конфетти
+class Confetti(pygame.sprite.Sprite):
+    def __init__(self, pos, dx, dy):
+        super().__init__()
+        self.size = random.randint(5, 15)  # Случайный размер
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+        self.color = random.choice(COLORS)  # Случайный цвет
+        self.shape = random.choice(["rect", "circle"])  # Случайная форма
+
+        # Рисуем конфетти
+        if self.shape == "rect":
+            self.image.fill(self.color)
+        else:
+            pygame.draw.circle(self.image, self.color, (self.size // 2, self.size // 2), self.size // 2)
+
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = pos
+        self.velocity = [dx, dy]
+        self.gravity = GRAVITY
+        confetti_sound.play()
 
     def update(self):
-        self.x += self.speed_x
-        self.y += self.speed_y
-        # Плавное уменьшение прозрачности
-        self.alpha = max(0, self.alpha - 2)  # Уменьшаем прозрачность на 2 за кадр
+        self.velocity[1] += self.gravity  # Гравитация
+        self.rect.x += self.velocity[0]   # Движение по X
+        self.rect.y += self.velocity[1]   # Движение по Y
 
-    def draw(self, screen):
-        # Создаем поверхность с прозрачностью
-        particle_surface = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
-        pygame.draw.rect(particle_surface, (*self.color, self.alpha), (0, 0, self.size, self.size))
-        screen.blit(particle_surface, (self.x, self.y))
+        # Удаляем конфетти, если оно ушло за пределы экрана
+        if not self.rect.colliderect((0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)):
+            self.kill()
 
-    def is_animation_done(self, duration):
-        if int(time.time() * 1000) - self.start_time < duration:
-            return False
-        return True
+# Функция для запуска анимации конфетти
+def start_confetti_animation(screen, background):
+    """Запускает анимацию конфетти из центра экрана."""
+    all_sprites = pygame.sprite.Group()
+    particle_count = 100  # Количество частиц
+    numbers = range(-5, 6)  # Возможные скорости
+
+    # Центр экрана
+    center_x = SCREEN_WIDTH // 2
+    center_y = SCREEN_HEIGHT // 2 - 150
+
+    # Создаем частицы
+    for _ in range(particle_count):
+        dx = random.choice(numbers)
+        dy = random.choice(numbers)
+        Confetti((center_x, center_y), dx, dy).add(all_sprites)
+
+    # Запускаем анимацию
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # Обновляем спрайты
+        all_sprites.update()
+        # Рисуем фон
+        screen.blit(background, (0, 0))
+
+        # Рисуем конфетти
+        all_sprites.draw(screen)
+        pygame.display.flip()
+        clock.tick(FPS)
+
+        # Останавливаем анимацию, если все частицы исчезли
+        if not all_sprites:
+            running = False

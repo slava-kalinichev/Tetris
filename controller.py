@@ -4,6 +4,7 @@ from level_selection import LevelMap
 from values import *
 from menu_handlers import Button, Menu, WinMenu
 from copy import deepcopy
+from confetti_animation import start_confetti_animation
 
 
 class Controller:
@@ -139,10 +140,11 @@ class Controller:
                 elif is_level_completed:
                     self.current_level.log_csv_data()
                     self.level_map.update_csv_data()
+                    win_sfx_sound.play()
 
                     level_win_menu = WinMenu(300, 300)
                     popup_y = SCREEN_HEIGHT
-                    popup_speed = 5
+                    popup_pos = 5  # СКОРОСТЬ АНИМАЦИИ РЕДАКТИРУЕТСЯ В MENU_HANDLERS
                     clock = pygame.time.Clock()
                     # Поверхность для сохранения фона
                     background_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -154,11 +156,15 @@ class Controller:
                         popup_active = level_win_menu.check()
                         if not popup_active:
                             running = False
+                            # Поверхность для сохранения фона
+                            background_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+                            background_surface.blit(self.screen, (0, 0))
+                            start_confetti_animation(self.screen, background_surface)
 
                         # Логика выезжающего окна
                         if popup_active:
                             if popup_y > (SCREEN_HEIGHT - 300) // 2:
-                                popup_y -= popup_speed
+                                popup_y -= popup_pos
                             # Восстановление фона
                             self.screen.blit(background_surface, (0, 0))
                             level_win_menu.move_up(self.screen)
@@ -170,17 +176,20 @@ class Controller:
 
                     if 'continue' in option:
                         # TODO: реализовать кнопку continue
-                        print('works')
+                        win_sfx_sound.stop()
+                        print('continue works')
 
                     elif 'main menu' in option:
                         self.state = self.STATES[1]
                         self.current_level = None
+                        win_sfx_sound.stop()
 
                     elif 'next' in option:
                         for level in self.level_map:
                             if int(level.level) == int(self.current_level.level) + 1:
                                 self.current_level = level
                                 self.jump_to_level = True
+                                win_sfx_sound.stop()
                                 break
 
     def manage_win_menu(self, win_menu):

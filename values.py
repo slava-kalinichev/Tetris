@@ -74,6 +74,7 @@ FPS = 30
 
 # Звуки
 pygame.mixer.init()
+confetti_sound = pygame.mixer.Sound("assets/SFX/01 Confetti.mp3")  # Звук конфетти
 drop_sound = pygame.mixer.Sound("assets/SFX/02 Speed Up.mp3")  # Звук падения
 force_sound = pygame.mixer.Sound("assets/SFX/03 Force Hit.mp3") # Звук приземления блока
 move_sound = pygame.mixer.Sound("assets/SFX/05 Common.mp3")  # Звук движения
@@ -81,6 +82,7 @@ rotate_sound = pygame.mixer.Sound("assets/SFX/05 Common.mp3")  # Звук пов
 clear_sound = pygame.mixer.Sound("assets/SFX/07 Stage Clear.mp3")  # Звук удаления строки
 game_over_sound = pygame.mixer.Sound("assets/SFX/08 Game Over.mp3")  # Звук поражения
 main_sfx_sound = pygame.mixer.Sound("assets/SFX/19 SFX.mp3")  # Тема
+win_sfx_sound = pygame.mixer.Sound("assets/SFX/31 SFX.mp3")  # Тема
 
 # Параметры сложности
 SPEED = 'speed'

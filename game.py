@@ -6,7 +6,6 @@ from values import *
 from score_animation import *
 from tetromino import Tetromino, LockedTetromino
 from shadow import Shadow
-from confetti_animation import ConfettiParticle
 from menu_handlers import *
 
 

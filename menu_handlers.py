@@ -198,7 +198,7 @@ class WinMenu(Menu):
         self.current_y = self.start_y
         self.target_y = (SCREEN_HEIGHT - self.height) // 2
         self.const_x = (SCREEN_WIDTH - self.width) // 2
-        self.animation_speed = 15
+        self.animation_speed = 30
         self.animation_done = False
 
     def move_up(self, screen):
