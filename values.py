@@ -53,6 +53,7 @@ RECORD_FILE = os.path.join("data", "high_score.txt")
 LEVELS_FILE = os.path.join("data", "level_status.csv")
 CLOSED_LEVEL_PATH = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
 FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
+LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked.png')
 
 # Шрифты
 font_base = pygame.font.Font(FONT_FILE, 20) # Шрифт
@@ -135,7 +136,7 @@ LEVEL_DIFFICULTY_SETTINGS = {
 
     LOCKED_SHAPES: {  # Шанс - 1 / N или 0
         1: 0,
-        2: 0,
+        2: 1,
         3: 15,
         4: 10,
         5: 12,

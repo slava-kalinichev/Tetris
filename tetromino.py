@@ -58,7 +58,14 @@ class Tetromino:
                             return False
         return True
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface, sprite: pygame.image = None):
+        """
+        Метод отрисовки. Добавлен необязательный параметр sprite, если для
+        рисования фигуры требуется использовать картинку, а не заливку цвета
+        :param surface: Поверхность для рисования (обычно экран)
+        :param sprite: Картинка для рисования
+        :return:
+        """
         for y in range(len(self.shape)):
             row = self.shape[y]
 
@@ -72,7 +79,12 @@ class Tetromino:
                     BLOCK_SIZE,
                     BLOCK_SIZE
                     )
-                    pygame.draw.rect(surface, self.color, tmp_rect, 0)
+
+                    if sprite is None:
+                        pygame.draw.rect(surface, self.color, tmp_rect, 0)
+
+                    else:
+                        surface.blit(sprite, tmp_rect)
 
     def get_shape(self):
         return self.shape
@@ -82,6 +94,7 @@ class LockedTetromino(Tetromino):
     def __init__(self, shape):
         super().__init__(shape)
         self.color = LOCKED_SHAPE_COLOR
+        self.image = pygame.image.load(LOCKED_SHAPE_IMAGE_PATH)
 
         for _ in range(random.randrange(4)):
             self.rotate(init=True)
@@ -93,3 +106,7 @@ class LockedTetromino(Tetromino):
 
         else:
             super().rotate()
+
+    def draw(self, surface: pygame.Surface, sprite: pygame.image = None):
+            if sprite is None:
+                super().draw(surface, self.image)

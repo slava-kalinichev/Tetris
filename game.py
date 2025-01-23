@@ -81,21 +81,6 @@ class Game:
         for x in range(len(grid[0])):
             pygame.draw.line(self.screen, GRAY, (x * BLOCK_SIZE, 0), (x * BLOCK_SIZE, GRID_HEIGHT))
 
-    def draw_glow(self, screen, color, rect, glow_radius, alpha):
-        """
-        Рисует свечение вокруг прямоугольника.
-        :param screen: Экран Pygame.
-        :param color: Цвет свечения (например, (255, 0, 0) для красного).
-        :param rect: Прямоугольник, вокруг которого рисуется свечение.
-        :param glow_radius: Радиус свечения.
-        :param alpha: Прозрачность свечения (0-255).
-        """
-        glow_surface = pygame.Surface((rect.width + glow_radius * 2, rect.height + glow_radius * 2), pygame.SRCALPHA)
-        pygame.draw.rect(glow_surface, (*color, alpha), (0, 0, glow_surface.get_width(), glow_surface.get_height()),
-                         border_radius=5)
-        screen.blit(glow_surface, (rect.x - glow_radius, rect.y - glow_radius))
-
-
     def valid_space(self, tetromino, grid):
         shape = tetromino.get_shape()
 
@@ -298,7 +283,6 @@ class Game:
         while True:
             # Инициализация игры
             locked_positions = {}
-            grid = self.create_grid(locked_positions)
 
             current_tetromino = self.generate_tetromino()
             next_tetromino = self.generate_tetromino()
