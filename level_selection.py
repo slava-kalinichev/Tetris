@@ -93,7 +93,7 @@ class LevelSprite(pygame.sprite.Sprite):
 
         return level_gameplay.get_completion()
 
-    def show_info(self) -> bool:
+    def show_info(self):
         # Размеры и позиция окна информации
         info_width = 400
         info_height = 300
@@ -139,12 +139,14 @@ class LevelSprite(pygame.sprite.Sprite):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     return info_menu.update(event.pos, return_result=True)
 
-                '''if event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN:
+                    # В случае ручного управления возвращаем булево значение
+                    # внутри списка, так как проверка осуществляется через итерацию списка
                     if event.key == pygame.K_RETURN:  # Клавиша Enter
-                        return True  # Игрок нажал "Играть"
+                        return [True]  # Игрок нажал "Играть"
 
                     if event.key == pygame.K_ESCAPE:
-                        return False  # Игрок нажал "Закрыть"'''
+                        return [False]  # Игрок нажал "Закрыть"
 
             # Отрисовка окна информации
             screen = pygame.display.get_surface()

@@ -130,7 +130,11 @@ class Controller:
                 is_level_entered = True
                 self.jump_to_level = False
 
-            if is_level_entered:
+            if not is_level_entered:
+                # Перемещаемся на карту, если нажат крестик
+                self.state = self.STATES[1]
+
+            else:
                 # Вызываем игру и записываем результат в переменную
                 is_level_completed = self.current_level.start_game()
 
@@ -173,23 +177,21 @@ class Controller:
                         clock.tick(FPS)
 
                     option = self.manage_win_menu(level_win_menu)
+                    win_sfx_sound.stop()
 
                     if 'continue' in option:
                         # TODO: реализовать кнопку continue
-                        win_sfx_sound.stop()
                         print('continue works')
 
                     elif 'main menu' in option:
                         self.state = self.STATES[1]
                         self.current_level = None
-                        win_sfx_sound.stop()
 
                     elif 'next' in option:
                         for level in self.level_map:
                             if int(level.level) == int(self.current_level.level) + 1:
                                 self.current_level = level
                                 self.jump_to_level = True
-                                win_sfx_sound.stop()
                                 break
 
     def manage_win_menu(self, win_menu):
