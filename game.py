@@ -69,11 +69,12 @@ class Game:
                     grid[y][x] = locked_positions[(x, y)]
         return grid
 
-    def draw_grid(self, grid):
+    def draw_field(self, grid):
         for y in range(len(grid)):
             for x in range(len(grid[y])):
                 pygame.draw.rect(self.screen, grid[y][x], (x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), 0)
 
+    def draw_grid(self, grid):
         for y in range(len(grid)):
             pygame.draw.line(self.screen, GRAY, (0, y * BLOCK_SIZE), (GRID_WIDTH, y * BLOCK_SIZE))
 
@@ -276,7 +277,7 @@ class Game:
             for x in range(len(grid[y])):
                 grid[y][x] = random.choice(COLORS)  # Закрашиваем случайным цветом
 
-                self.draw_grid(grid)
+                self.draw_field(grid)
                 self.draw_border()
                 pygame.display.update()
                 pygame.time.delay(10)  # Задержка для плавности анимации
@@ -540,11 +541,12 @@ class Game:
 
                 # Отрисовка
                 self.screen.fill(BLACK)  # Очистка экрана
-                self.draw_grid(grid)
+                self.draw_field(grid)  # Рисуем содержимое поля
                 self.draw_tetromino(current_tetromino)
                 shadow.draw(self.screen)  # Отрисовываем проекцию
                 self.draw_instructions(score, record, next_tetromino, self.paused)  # Рисуем инструкцию
                 self.draw_border()  # Рисуем рамку вокруг игрового поля
+                self.draw_grid(grid)  # Рисуем сетку поля
 
                 # Отрисовываем активные анимации
                 for animation in self.score_animations:
