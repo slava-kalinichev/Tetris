@@ -278,6 +278,7 @@ class Game:
                 grid[y][x] = random.choice(COLORS)  # Закрашиваем случайным цветом
 
                 self.draw_field(grid)
+                self.draw_grid(grid)
                 self.draw_border()
                 pygame.display.update()
                 pygame.time.delay(10)  # Задержка для плавности анимации
