@@ -134,6 +134,7 @@ class LevelSprite(pygame.sprite.Sprite):
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    return [False]
                     pygame.quit()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:

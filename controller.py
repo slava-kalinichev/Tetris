@@ -175,8 +175,8 @@ class Controller:
                         pygame.display.flip()
                         clock.tick(FPS)
 
-                    option = self.manage_win_menu(level_win_menu)
                     win_sfx_sound.stop()
+                    option = self.manage_win_menu(level_win_menu)
 
                     if 'continue' in option:
                         # TODO: реализовать кнопку continue
@@ -224,6 +224,7 @@ class Controller:
                 if event.type == pygame.QUIT:
                     still_choosing = False
                     self.stop()
+                    return option
 
                 # Получаем выбранную опцию
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -233,7 +234,6 @@ class Controller:
             # Если хотя бы одна из кнопок нажата, то список будет иметь одно значение, отличающееся от None
             if any(option):
                 return option
-
 
     def start(self):
         while self.run:
