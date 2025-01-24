@@ -109,7 +109,7 @@ LEVEL_DIFFICULTY_SETTINGS = {
     },
 
     MIN_POINTS: {
-        1: 1,
+        1: 5,
         2: 10_000,
         3: 15_000,
         4: 20_000,

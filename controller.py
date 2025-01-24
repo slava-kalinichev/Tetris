@@ -144,44 +144,13 @@ class Controller:
                 elif is_level_completed:
                     self.current_level.log_csv_data()
                     self.level_map.update_csv_data()
-                    win_sfx_sound.play()
 
-                    level_win_menu = WinMenu(300, 300)
-                    popup_y = SCREEN_HEIGHT
-                    popup_pos = 5  # СКОРОСТЬ АНИМАЦИИ РЕДАКТИРУЕТСЯ В MENU_HANDLERS
-                    clock = pygame.time.Clock()
-                    # Поверхность для сохранения фона
-                    background_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-                    background_surface.blit(self.screen, (0, 0))
+                    # Чтение списка нажатий на кнопки из файла
+                    with open("data/win_option.txt", "r") as file:
+                        option = file.read()
 
-                    running = True
-                    while running:
-                        popup_active = level_win_menu.check()
-                        if not popup_active:
-                            running = False
-                            # Поверхность для сохранения фона
-                            background_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-                            background_surface.blit(self.screen, (0, 0))
-                            start_confetti_animation(self.screen, background_surface)
-
-                        # Логика выезжающего окна
-                        if popup_active:
-                            if popup_y > (SCREEN_HEIGHT - 300) // 2:
-                                popup_y -= popup_pos
-                            # Восстановление фона
-                            self.screen.blit(background_surface, (0, 0))
-                            level_win_menu.move_up(self.screen)
-
-                        pygame.display.flip()
-                        clock.tick(FPS)
-
-                    win_sfx_sound.stop()
-                    option = self.manage_win_menu(level_win_menu)
-
-                    if 'continue' in option:
-                        # TODO: реализовать кнопку continue
+                    if 'continue' in option:  # Ветвь continue не активна (можно убрать)
                         self.jump_to_level = True
-                        print('continue works')
 
                     elif 'main menu' in option:
                         self.state = self.STATES[1]

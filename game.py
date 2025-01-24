@@ -6,6 +6,7 @@ from values import *
 from score_animation import *
 from tetromino import Tetromino, LockedTetromino
 from shadow import Shadow
+from win_screen import WinScreen
 from menu_handlers import *
 
 
@@ -256,19 +257,6 @@ class Game:
                 pygame.display.update()
                 pygame.time.delay(10)  # Задержка для плавности анимации
 
-    def animate_button(self, button):
-        pygame.draw.rect(self.screen, GRAY, button)
-        button_text = pygame.font.Font(FONT_FILE, 35).render("Start", True, BLACK)
-        self.screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, 320))
-        pygame.display.update()
-        pygame.time.delay(100)  # Задержка для анимации
-
-        pygame.draw.rect(self.screen, BLACK, button)
-        button_text = pygame.font.Font(FONT_FILE, 35).render("Start", True, WHITE)
-        self.screen.blit(button_text, (SCREEN_WIDTH // 2 - button_text.get_width() // 2, 320))
-        pygame.display.update()
-        pygame.time.delay(100)  # Задержка для анимации
-
     def sync_grid_with_locked_positions(self, grid, locked_positions):
         # Синхронизирует grid с locked_positions.
         # Очищаем grid
@@ -283,6 +271,18 @@ class Game:
 
     def stop(self):
         self.paused = True
+
+    def win_processing(self):
+        self.paused = True
+        self.is_level_completed = True
+        do_core = WinScreen()
+        win_sfx_sound.play()
+        isQuit = do_core.core(self.screen)
+        win_sfx_sound.stop()
+        if isQuit:
+            return True
+        else:
+            return False
 
     def play(self):
         while True:
@@ -311,21 +311,31 @@ class Game:
             game_over = False
 
             while running:
-                # Проверяем наличие нужных очков
-                if score >= self.score_goal:
+                # Проверяем условия для анимации победы
+                if score >= self.score_goal and not self.is_level_completed:
                     # Проверяем, установлена ли цель по собиранию линий
                     if self.line_goal:
                         # Проверяем, собирали ли мы 4 линии за раз
                         if self.is_line_goal_completed:
-                            self.paused = True
-                            self.is_level_completed = True
-                            return
+                            act = self.win_processing()
+                            if act:
+                                return
+                            else:
+                                self.paused = False
+                                keys[pygame.K_DOWN]['pressed'] = False  # Снимаем с ускорения
+                                keys[pygame.K_LEFT]['pressed'] = False
+                                keys[pygame.K_RIGHT]['pressed'] = False
 
                     # Если цель не установлена, уровень пройден
                     else:
-                        self.paused = True
-                        self.is_level_completed = True
-                        return
+                        act = self.win_processing()
+                        if act:
+                            return
+                        else:
+                            self.paused = False
+                            keys[pygame.K_DOWN]['pressed'] = False  # Снимаем с ускорения
+                            keys[pygame.K_LEFT]['pressed'] = False
+                            keys[pygame.K_RIGHT]['pressed'] = False
 
                 grid = self.create_grid(locked_positions)
                 fall_time += self.clock.get_rawtime()
