@@ -52,7 +52,7 @@ class Controller:
 
         # Название игры
         # TODO: сделать красивое название картинкой
-        self.title = font_title.render(f'Tetrix', True, WHITE)
+        self.title = FONT_TITLE.render(f'Tetrix', True, WHITE)
 
         # Атрибуты меню
         self.main_menu = Menu(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -181,6 +181,7 @@ class Controller:
 
                     if 'continue' in option:
                         # TODO: реализовать кнопку continue
+                        self.jump_to_level = True
                         print('continue works')
 
                     elif 'main menu' in option:

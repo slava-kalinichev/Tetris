@@ -139,22 +139,22 @@ class Game:
         y = 20  # Начальная позиция по вертикали
 
         # Отображаем счёт
-        score_text = font_score.render(f"SCORE: {score}", True, WHITE)
+        score_text = FONT_SCORE.render(f"SCORE: {score}", True, WHITE)
         self.screen.blit(score_text, (x, y))
         y += 30  # Увеличиваем отступ перед полем "Next"
 
         # Отображаем рекорд
-        record_text = font_base.render(f"Record: {record}", True, WHITE)
+        record_text = FONT_BASE.render(f"Record: {record}", True, WHITE)
         self.screen.blit(record_text, (x, y))
         y += 40  # Увеличиваем отступ перед полем "Next"
 
         # Отображаем уровень
-        level_text = font_base.render(f"Level: {self.level}", True, WHITE)
+        level_text = FONT_BASE.render(f"Level: {self.level}", True, WHITE)
         self.screen.blit(level_text, (x, y))
         y += 40  # Увеличиваем отступ перед полем "Next"
 
         # Отображаем надпись "Next"
-        next_label = font_base.render("Next:", True, WHITE)
+        next_label = FONT_BASE.render("Next:", True, WHITE)
         self.screen.blit(next_label, (x, y))
         y += 25  # Отступ перед отрисовкой следующей фигуры
 
@@ -185,7 +185,7 @@ class Game:
 
         if not paused:
             for line in LEVEL_GOALS:
-                text = font_controls.render(line, True, WHITE)
+                text = FONT_CONTROLS.render(line, True, WHITE)
                 goal_state = False
                 #self.line_goal = True
 
@@ -193,16 +193,16 @@ class Game:
                     continue
                 if line == LEVEL_GOALS[1]:
                     if score >= self.score_goal:
-                        text = font_controls.render(f'{line}: {self.score_goal}', True, WHITE)
-                        goal_state = font_controls.render('V', True, (0, 230, 0))
+                        text = FONT_CONTROLS.render(f'{line}: {self.score_goal}', True, WHITE)
+                        goal_state = FONT_CONTROLS.render('V', True, (0, 230, 0))
                     else:
-                        text = font_controls.render(f'{line}: {self.score_goal}', True, WHITE)
-                        goal_state = font_controls.render('X', True, (255, 0, 0))
+                        text = FONT_CONTROLS.render(f'{line}: {self.score_goal}', True, WHITE)
+                        goal_state = FONT_CONTROLS.render('X', True, (255, 0, 0))
                 elif line == LEVEL_GOALS[2]:
                     if self.is_line_goal_completed:
-                        goal_state = font_controls.render('V', True, (0, 230, 0))
+                        goal_state = FONT_CONTROLS.render('V', True, (0, 230, 0))
                     else:
-                        goal_state = font_controls.render('X', True, (255, 0, 0))
+                        goal_state = FONT_CONTROLS.render('X', True, (255, 0, 0))
 
                 self.screen.blit(text, (x, y))
                 if goal_state:
@@ -210,11 +210,11 @@ class Game:
                 y += 30  # Отступ между строками
 
             y = 570
-            text = font_controls.render('Controls - Space', True, WHITE)
+            text = FONT_CONTROLS.render('Controls - Space', True, WHITE)
             self.screen.blit(text, (x, y))
         else:
             for line in INSTRUCTIONS:
-                text = font_controls.render(line, True, WHITE)
+                text = FONT_CONTROLS.render(line, True, WHITE)
                 self.screen.blit(text, (x, y))
                 y += 30  # Отступ между строками
 
@@ -522,7 +522,7 @@ class Game:
 
                 # Если игра на паузе, отображаем сообщение
                 if self.paused:
-                    pause_text = font_pause.render("Pause", True, WHITE)
+                    pause_text = FONT_PAUSE.render("Pause", True, WHITE)
                     p_x = GRID_WIDTH // 2 - pause_text.get_width() // 2
                     p_y =  SCREEN_HEIGHT // 2 - pause_text.get_height() // 2
                     self.screen.blit(pause_text, (p_x, p_y))

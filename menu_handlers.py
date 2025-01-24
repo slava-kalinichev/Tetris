@@ -3,7 +3,7 @@ from values import *
 
 
 class Button:
-    def __init__(self, title, function, width=STANDARD_BUTTON_WIDTH, height=STANDARD_BUTTON_HEIGHT, font=font_base, color=GRAY):
+    def __init__(self, title, function, width=STANDARD_BUTTON_WIDTH, height=STANDARD_BUTTON_HEIGHT, font=FONT_BASE, color=GRAY):
         """
         Класс кнопки
         :param width: параметр размера (ширина)
@@ -180,7 +180,7 @@ class WinMenu(Menu):
     def __init__(self, width, height):
         super().__init__(width, height, color=WIN_MENU_COLOR)
 
-        win_text = font_base.render('You Passed The Level!', True, 'white')
+        win_text = FONT_BASE.render('You Passed The Level!', True, 'white')
 
         continue_button = Button('Continue', lambda: 'continue')
         go_to_menu_button = Button('Menu', lambda: 'main menu')

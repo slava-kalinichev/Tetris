@@ -96,7 +96,7 @@ class LevelSprite(pygame.sprite.Sprite):
     def show_info(self):
         # Размеры и позиция окна информации
         info_width = 400
-        info_height = 300
+        info_height = 400
         info_x = (SCREEN_WIDTH - info_width) // 2
         info_y = (SCREEN_HEIGHT - info_height) // 2
         score_goal = LEVEL_DIFFICULTY_SETTINGS[MIN_POINTS][int(self.level)]
@@ -107,21 +107,21 @@ class LevelSprite(pygame.sprite.Sprite):
 
         # Данные для текста: (текст, шрифт, цвет, позиция y)
         text_data = [
-            (f"Level {self.level}", font_score, (255, 255, 255), 40),
-            (f"Score Goal: {score_goal}", font_base, (255, 255, 255), 90),
-            ("Required to Clear 4 Rows" if line_goal else "-", font_base, (255, 255, 255), 130),
-            (f"Personal Best: -", font_base, (255, 255, 255), 170),
+            (f"Level {self.level}", FONT_BASE, (255, 255, 255), 40),
+            (f"Score Goal: {score_goal}", FONT_BASE, (255, 255, 255), 90),
+            ("Required to Clear 4 Rows" if line_goal else "-", FONT_BASE, (255, 255, 255), 130),
+            (f"Personal Best: -", FONT_BASE, (255, 255, 255), 170),
         ]
 
         # Отрисовка текста на поверхности меню
         for coord, (text, font, color, y_pos) in enumerate(text_data):
             rendered_text = font.render(text, True, color)
-            info_menu.draw_additional_surface(rendered_text, y=coord * 45 + 25)
+            info_menu.draw_additional_surface(rendered_text, y=coord * 70 + 25)
 
         # Данные для кнопок: (текст, функция, ширина, высота, шрифт, цвет, позиция)
         button_data = [
-            ("Play", lambda: True, 150, 40, font_score, (0, 128, 0), (info_width // 2 - 75, info_height - 80)),
-            ("x", lambda: False, 30, 30, font_specific, (255, 0, 0), (info_width - 50, 20)),
+            ("Play", lambda: True, 150, 40, FONT_BASE, (0, 128, 0), (info_width // 2 - 75, info_height - 80)),
+            ("x", lambda: False, 30, 30, FONT_BASE, (255, 0, 0), (info_width - 50, 20)),
         ]
 
         # Добавление кнопок в меню

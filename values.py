@@ -56,15 +56,15 @@ FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
 LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked.png')
 
 # Шрифты
-font_base = pygame.font.Font(FONT_FILE, 20) # Шрифт
-font_score = pygame.font.Font(FONT_FILE, 24) # Шрифт для счета
-font_controls = pygame.font.Font(FONT_FILE, 16)
-font_title = pygame.font.Font(FONT_FILE, 40)
-font_level = pygame.font.Font(FONT_FILE, 30)
-font_start = pygame.font.Font(FONT_FILE, 35)
-font_pause = pygame.font.Font(FONT_FILE, 60)
-font_exit = pygame.font.Font(FONT_FILE, 25)
-font_specific = pygame.font.Font(None, 36)
+FONT_BASE = pygame.font.Font(FONT_FILE, 20) # Шрифт
+FONT_SCORE = pygame.font.Font(FONT_FILE, 24) # Шрифт для счета
+FONT_CONTROLS = pygame.font.Font(FONT_FILE, 16)
+FONT_TITLE = pygame.font.Font(FONT_FILE, 40)
+FONT_LEVEL = pygame.font.Font(FONT_FILE, 30)
+FONT_START = pygame.font.Font(FONT_FILE, 35)
+FONT_PAUSE = pygame.font.Font(FONT_FILE, 60)
+FONT_EXIT = pygame.font.Font(FONT_FILE, 25)
+FONT_SPECIFIC = pygame.font.Font(None, 36)
 
 SCREEN_WIDTH = GRID_WIDTH + INFO_WIDTH
 SCREEN_HEIGHT = GRID_HEIGHT
