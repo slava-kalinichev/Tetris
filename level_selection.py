@@ -109,9 +109,11 @@ class LevelSprite(pygame.sprite.Sprite):
         text_data = [
             (f"Level {self.level}", FONT_BASE, (255, 255, 255), 40),
             (f"Score Goal: {score_goal}", FONT_BASE, (255, 255, 255), 90),
-            ("Required to Clear 4 Rows" if line_goal else "-", FONT_BASE, (255, 255, 255), 130),
+            ("Required to Clear 4 Rows", FONT_BASE, (255, 255, 255), 130),
             (f"Personal Best: -", FONT_BASE, (255, 255, 255), 170),
         ]
+        if not line_goal:
+            del text_data[2]
 
         # Отрисовка текста на поверхности меню
         for coord, (text, font, color, y_pos) in enumerate(text_data):

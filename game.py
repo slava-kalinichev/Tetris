@@ -186,7 +186,7 @@ class Game:
         if not paused:
             for line in LEVEL_GOALS:
                 text = FONT_CONTROLS.render(line, True, WHITE)
-                goal_state = False
+                goal_state = None
                 #self.line_goal = True
 
                 if not self.line_goal and line == LEVEL_GOALS[2]:
@@ -283,6 +283,7 @@ class Game:
         while True:
             # Инициализация игры
             locked_positions = {}
+            tmp_speed = None
 
             current_tetromino = self.generate_tetromino()
             next_tetromino = self.generate_tetromino()
@@ -332,10 +333,8 @@ class Game:
 
                         if not self.valid_space(current_tetromino, grid):
                             current_tetromino.y -= 1
-                            try:
-                                self.fall_speed = tmp_speed
-                            except:
-                                pass
+
+                            self.fall_speed = tmp_speed if tmp_speed else self.fall_speed
                             force_sound.play()  # Звук приземления блока
                             score += self.selected_level * 10
 
