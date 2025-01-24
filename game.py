@@ -16,8 +16,16 @@ class Game:
         self.level = level
         self.is_level_completed = False
 
-        self.paused = False  # Состояние паузы
+        self.level_best_score_data = [('level', 'score')]
 
+        with open(RECORD_FILE, 'r') as file:
+            reader = csv.reader(file, delimiter=';')
+            next(reader, None)
+
+            for line in reader:
+                self.level_best_score_data.append(list(map(int, line)))
+
+        self.paused = False  # Состояние паузы
         self.confetti_particles = []  # Список для хранения частиц конфетти
 
         # Создание параметров сложности
@@ -224,18 +232,15 @@ class Game:
         border_width = 1  # Толщина рамки
         pygame.draw.rect(self.screen, border_color, (0, 0, GRID_WIDTH, GRID_HEIGHT), border_width)
 
-    # Функция для загрузки рекорда из файла
-    def load_high_score(self):
-        if os.path.exists(RECORD_FILE):
-            with open(RECORD_FILE, 'r') as file:
-                return int(file.read())
-
-        return 0  # Если файла нет, возвращаем 0
-
     # Функция для сохранения рекорда в файл
     def save_high_score(self, score):
-        with open(RECORD_FILE, 'w') as file:
-            file.write(str(score))
+        self.level_best_score_data[int(self.level)][1] = score
+
+        with open(RECORD_FILE, 'w', newline='') as file:
+            writer = csv.writer(file, delimiter=';')
+
+            for line in self.level_best_score_data:
+                writer.writerow(line)
 
     def game_over_animation(self, grid):
         # Анимация поражения: закрашиваем поле снизу вверх
@@ -290,7 +295,7 @@ class Game:
             fall_time = 0
             accelerated_fall_speed = 0.05
             score = 0
-            record = self.load_high_score()
+            record = self.level_best_score_data[int(self.level)][1]
 
             # Обнуляем значения предыдущего уровня
             self.is_line_goal_completed = False

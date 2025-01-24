@@ -102,6 +102,10 @@ class LevelSprite(pygame.sprite.Sprite):
         score_goal = LEVEL_DIFFICULTY_SETTINGS[MIN_POINTS][int(self.level)]
         line_goal = LEVEL_DIFFICULTY_SETTINGS[MAKE_TETRIS][int(self.level)]
 
+        with open(RECORD_FILE) as file:
+            reader = csv.reader(file, delimiter=';')
+            current_best = [line for line in reader if line[0] == self.level][0][1]
+
         # Создаем меню для окна информации
         info_menu = Menu(info_width, info_height, color=WINDOWS_COLOR, border_width=3)
 
@@ -110,7 +114,7 @@ class LevelSprite(pygame.sprite.Sprite):
             (f"Level {self.level}", FONT_BASE, (255, 255, 255), 40),
             (f"Score Goal: {score_goal}", FONT_BASE, (255, 255, 255), 90),
             ("Required to Clear 4 Rows", FONT_BASE, (255, 255, 255), 130),
-            (f"Personal Best: -", FONT_BASE, (255, 255, 255), 170),
+            (f"Personal Best: {current_best}", FONT_BASE, (255, 255, 255), 170),
         ]
         if not line_goal:
             del text_data[2]
@@ -137,7 +141,6 @@ class LevelSprite(pygame.sprite.Sprite):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return [False]
-                    pygame.quit()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     return info_menu.update(event.pos, return_result=True)

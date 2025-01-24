@@ -49,11 +49,11 @@ GRID_HEIGHT = 600
 INFO_WIDTH = 205  # Ширина области для инструкции
 
 # Файлы
-RECORD_FILE = os.path.join("data", "high_score.txt")
+RECORD_FILE = os.path.join("data", "high_score.csv")
 LEVELS_FILE = os.path.join("data", "level_status.csv")
 CLOSED_LEVEL_PATH = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
 FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
-LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked.png')
+LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked test.png')
 
 # Шрифты
 FONT_BASE = pygame.font.Font(FONT_FILE, 20) # Шрифт
