@@ -28,8 +28,8 @@ class Button:
         message_height = self.message.get_height()
 
         # Высчитываем координаты, чтобы надпись была посередине
-        self.message_x_coord = (self.width - message_width) // 2
-        self.message_y_coord = (self.height - message_height) // 2
+        self.message_x_coord = (self.width - message_width) / 2
+        self.message_y_coord = (self.height - message_height) / 2
 
         # Создаем поверхность кнопки, а также ее прямоугольник
         self.surface = pygame.Surface((self.width, self.height))

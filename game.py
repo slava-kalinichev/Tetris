@@ -352,7 +352,8 @@ class Game:
                                 score -= self.selected_level * 10  # Корректировка счёта за последнее приземление
                                 self.game_over_animation(grid)  # Анимация поражения
                                 self.fall_speed = self.starting_fall_speed
-                                return 'quit'
+                                self.is_level_completed = False
+                                return
 
                             # Обновляем рекорд, если текущий счёт больше
                             if score > record:

@@ -154,7 +154,6 @@ class Controller:
                     background_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
                     background_surface.blit(self.screen, (0, 0))
 
-
                     running = True
                     while running:
                         popup_active = level_win_menu.check()
@@ -194,6 +193,9 @@ class Controller:
                                 self.current_level = level
                                 self.jump_to_level = True
                                 break
+
+                else:
+                    self.jump_to_level = True
 
     def manage_win_menu(self, win_menu):
         """

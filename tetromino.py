@@ -99,7 +99,6 @@ class LockedTetromino(Tetromino):
         for _ in range(random.randrange(4)):
             self.rotate(init=True)
 
-
     def rotate(self, init=False):
         if not init:
             pass
