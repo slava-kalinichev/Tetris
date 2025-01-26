@@ -95,8 +95,8 @@ class LevelSprite(pygame.sprite.Sprite):
 
     def show_info(self):
         # Размеры и позиция окна информации
-        info_width = 400
-        info_height = 400
+        info_width = 300
+        info_height = 300
         info_x = (SCREEN_WIDTH - info_width) // 2
         info_y = (SCREEN_HEIGHT - info_height) // 2
         score_goal = LEVEL_DIFFICULTY_SETTINGS[MIN_POINTS][int(self.level)]
@@ -109,25 +109,36 @@ class LevelSprite(pygame.sprite.Sprite):
         # Создаем меню для окна информации
         info_menu = Menu(info_width, info_height, color=WINDOWS_COLOR, border_width=3)
 
-        # Данные для текста: (текст, шрифт, цвет, позиция y)
+        '''Данные для текста: (текст, шрифт, цвет, [y-отступ], [позиция y])'''
+        # Если [позиция y] указана, то y-отступ игнорируется
         text_data = [
-            (f"Level {self.level}", FONT_BASE, (255, 255, 255), 40),
-            (f"Score Goal: {score_goal}", FONT_BASE, (255, 255, 255), 90),
-            ("Required to Clear 4 Rows", FONT_BASE, (255, 255, 255), 130),
-            (f"Personal Best: {current_best}", FONT_BASE, (255, 255, 255), 170),
+            (f"Level {self.level}", FONT_KEY, (255, 255, 255), None, None),
+            (f"Score Goal: {score_goal}", FONT_BASE, (255, 255, 255), None, None),
+            ("Required to Clear 4 Rows", FONT_BASE, (255, 255, 255), None, None),
+            (f"Level HI: {current_best}", FONT_BASE, (255, 255, 255), None, 180)
         ]
         if not line_goal:
             del text_data[2]
 
         # Отрисовка текста на поверхности меню
-        for coord, (text, font, color, y_pos) in enumerate(text_data):
+        y = 25  # y-координата первого текста (если не указаны отступ и позиция)
+        y_default_offset = 50  # y-отступ (если не указаны отступ и позиция)
+        for i, (text, font, color, y_offset, y_pos) in enumerate(text_data):
+            y_pos = y if (y_offset is None and y_pos is None and i == 0) else y_pos
+            y_offset = y_offset if y_offset else y_default_offset
+            y_offset = None if y_pos else y_offset
             rendered_text = font.render(text, True, color)
-            info_menu.draw_additional_surface(rendered_text, y=coord * 70 + 25)
+            if y_pos:
+                y = y_pos
+                info_menu.draw_additional_surface(rendered_text, y=y)
+            else:
+                y = y + y_offset
+                info_menu.draw_additional_surface(rendered_text, y=y)
 
         # Данные для кнопок: (текст, функция, ширина, высота, шрифт, цвет, позиция)
         button_data = [
-            ("Play", lambda: True, 150, 40, FONT_BASE, (0, 128, 0), (info_width // 2 - 75, info_height - 80)),
-            ("x", lambda: False, 30, 30, FONT_BASE, (255, 0, 0), (info_width - 50, 20)),
+            ("Play", lambda: True, 150, 40, FONT_KEY, (0, 128, 0), (info_width // 2 - 75, info_height - 80)),
+            ("x", lambda: False, 30, 30, FONT_KEY, (255, 0, 0), (info_width - 50, 20)),
         ]
 
         # Добавление кнопок в меню
