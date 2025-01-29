@@ -8,6 +8,7 @@ from tetromino import Tetromino, LockedTetromino
 from shadow import Shadow
 from win_screen import WinScreen
 from menu_handlers import *
+from PIL import Image
 
 
 class Game:
@@ -59,7 +60,8 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def get_random_shape(self, available_shapes):
-        return SHAPES[random.choice(list(available_shapes.keys()))]
+        #return SHAPES[random.choice(list(available_shapes.keys()))]
+        return SHAPES['square-shape']
 
     def generate_tetromino(self):
         return random.choice(self.type_determination)(self.get_random_shape(self.available_shapes))
@@ -173,6 +175,9 @@ class Game:
             shape = next_tetromino.get_shape()
             image = next_tetromino.image
             # Размер блока для отрисовки следующей фигуры
+            new_size = (image.get_width() // 2, image.get_height() // 2)
+            # Масштабируем изображение
+            image = pygame.transform.scale(image, new_size)
             preview_block_size = BLOCK_SIZE // 2
             # Центрируем фигуру в поле "Next"
             start_x = x + (INFO_WIDTH - len(shape[0]) * preview_block_size) // 2 - 15
@@ -490,12 +495,11 @@ class Game:
                                 and not locked_positions  # locked_positions пуст
                         )
                         if is_field_empty:
-                            prize = 5000
                             # Запускаем анимацию для каждой пустого поля
                             start_y = (GRID_HEIGHT // BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE // 2
                             start_pos = (GRID_WIDTH // 2, start_y)  # Центр строки
                             end_pos = (GRID_WIDTH, 20)  # Позиция счёта
-                            self.score_animations.append(ScoreAnimation(prize, start_pos, end_pos))
+                            self.score_animations.append(ScoreAnimation(PRIZE * self.selected_level, start_pos, end_pos))
 
                 # Обновляем анимации и начисляем очки
                 for animation in self.score_animations:
@@ -511,7 +515,6 @@ class Game:
 
                 # Удаляем завершённые анимации
                 self.score_animations = [anim for anim in self.score_animations if anim.active]
-
                 # Создаем объект проекции
                 shadow = Shadow(current_tetromino, grid)
 
