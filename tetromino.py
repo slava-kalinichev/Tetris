@@ -103,3 +103,23 @@ class LockedTetromino(Tetromino):
 
         else:
             super().rotate()
+
+
+class BonusTetromino(Tetromino):
+    def __init__(self):
+        super().__init__(shape=SHAPES["dot"])
+
+        # Структура бонусного класса: словарь, определяющий значения для заданных бонусов
+        self.DETERMINANT = {
+            0: (BONUS_IMAGES[0], self.prize_points)
+        }
+
+        # Выбор бонуса
+        self.bonus = random.randrange(0, 5)
+
+        # Установка бонуса и функции, которую будет выполнять бонус
+        self.image, self.function = self.DETERMINANT[self.bonus]
+
+    def prize_points(self):
+        pass
+

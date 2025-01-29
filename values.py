@@ -56,6 +56,11 @@ FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
 LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked test.png')
 EMPTY_FIELD_IMAGE = pygame.image.load(os.path.join('assets', 'gameplay', 'background', 'empty_space.png'))
 
+BONUS_IMAGES = tuple(
+    os.path.join('assets', 'gameplay', 'shapes', 'bonus', i)
+    for i in os.listdir(os.path.join('assets', 'gameplay', 'shapes', 'bonus'))
+)
+
 REGULAR_SHAPES = tuple(
     os.path.join("assets", "gameplay", "shapes", "regular", color)
     for color in os.listdir(os.path.join("assets", "gameplay", "shapes", "regular"))

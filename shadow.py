@@ -7,10 +7,7 @@ class Shadow:
         self.grid = grid  # Сетка игрового поля
         self.shape = tetromino.get_shape()  # Форма фигуры
         # Убедимся, что цвет — это кортеж из трех чисел (R, G, B)
-        if isinstance(tetromino.get_image(), (tuple, list)) and len(tetromino.color) == 3:
-            self.color = tetromino.color
-        else:
-            self.color = (255, 255, 255)  # Белый цвет по умолчанию
+        self.image = self.tetromino.image  # Белый цвет по умолчанию
         self.x = tetromino.x  # Позиция по X
         self.y = self.calculate_y()  # Позиция по Y (рассчитывается)
 
@@ -42,10 +39,6 @@ class Shadow:
             for col in range(len(self.shape[row])):
                 if self.shape[row][col]:
                     # Создаем поверхность с прозрачностью
-                    surface = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE), pygame.SRCALPHA)
-                    # Добавляем прозрачность к цвету
-                    color_with_alpha = (*self.color, 100)
-                    # Закрашиваем поверхность полупрозрачным цветом
-                    surface.fill(color_with_alpha)
+
                     # Обрисовываем поверхность на экране
-                    screen.blit(surface, ((self.x + col) * BLOCK_SIZE, (self.y + row) * BLOCK_SIZE))
+                    screen.blit(self.image, ((self.x + col) * BLOCK_SIZE, (self.y + row) * BLOCK_SIZE))
