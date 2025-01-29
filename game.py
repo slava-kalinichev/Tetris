@@ -457,7 +457,8 @@ class Game:
                             self.paused = not self.paused  # Переключаем состояние паузы
 
                         if event.key == pygame.K_r:  # Нажатие R
-                            self.play()
+                            self.is_level_completed = False
+                            return
 
                     if event.type == pygame.KEYUP:
                         if event.key == pygame.K_LEFT:
