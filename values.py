@@ -56,14 +56,12 @@ FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
 LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked test.png')
 
 # Шрифты
-FONT_BASE = pygame.font.Font(FONT_FILE, 20) # Шрифт
+FONT_BASE = pygame.font.Font(FONT_FILE, 19) # Шрифт
+FONT_KEY = pygame.font.Font(FONT_FILE, 22) # Шрифт для ключевых элементов окна
 FONT_SCORE = pygame.font.Font(FONT_FILE, 24) # Шрифт для счета
 FONT_CONTROLS = pygame.font.Font(FONT_FILE, 16)
 FONT_TITLE = pygame.font.Font(FONT_FILE, 40)
-FONT_LEVEL = pygame.font.Font(FONT_FILE, 30)
-FONT_START = pygame.font.Font(FONT_FILE, 35)
 FONT_PAUSE = pygame.font.Font(FONT_FILE, 60)
-FONT_EXIT = pygame.font.Font(FONT_FILE, 25)
 FONT_SPECIFIC = pygame.font.Font(None, 36)
 
 SCREEN_WIDTH = GRID_WIDTH + INFO_WIDTH
@@ -109,7 +107,7 @@ LEVEL_DIFFICULTY_SETTINGS = {
     },
 
     MIN_POINTS: {
-        1: 5,
+        1: 5_000,
         2: 10_000,
         3: 15_000,
         4: 20_000,
@@ -136,7 +134,7 @@ LEVEL_DIFFICULTY_SETTINGS = {
 
     LOCKED_SHAPES: {  # Шанс - 1 / N или 0
         1: 0,
-        2: 1,
+        2: 20,
         3: 15,
         4: 10,
         5: 12,

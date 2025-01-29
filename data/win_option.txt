@@ -1,1 +1,1 @@
-[None, None, 'continue']
+[None, 'main menu', None]

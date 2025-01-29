@@ -153,7 +153,7 @@ class Game:
         y += 30  # Увеличиваем отступ перед полем "Next"
 
         # Отображаем рекорд
-        record_text = FONT_BASE.render(f"Record: {record}", True, WHITE)
+        record_text = FONT_BASE.render(f"HI: {record}", True, WHITE)
         self.screen.blit(record_text, (x, y))
         y += 40  # Увеличиваем отступ перед полем "Next"
 
@@ -351,7 +351,7 @@ class Game:
 
                             self.fall_speed = tmp_speed if tmp_speed else self.fall_speed
                             force_sound.play()  # Звук приземления блока
-                            score += self.selected_level * 10
+                            score += self.selected_level * 5
 
                             for y, row in enumerate(current_tetromino.get_shape()):
                                 for x, cell in enumerate(row):
