@@ -7,7 +7,7 @@ class Shadow:
         self.grid = grid  # Сетка игрового поля
         self.shape = tetromino.get_shape()  # Форма фигуры
         # Убедимся, что цвет — это кортеж из трех чисел (R, G, B)
-        if isinstance(tetromino.color, (tuple, list)) and len(tetromino.color) == 3:
+        if isinstance(tetromino.get_image(), (tuple, list)) and len(tetromino.color) == 3:
             self.color = tetromino.color
         else:
             self.color = (255, 255, 255)  # Белый цвет по умолчанию

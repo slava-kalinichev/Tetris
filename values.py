@@ -54,6 +54,12 @@ LEVELS_FILE = os.path.join("data", "level_status.csv")
 CLOSED_LEVEL_PATH = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
 FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
 LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked test.png')
+EMPTY_FIELD_IMAGE = pygame.image.load(os.path.join('assets', 'gameplay', 'background', 'empty_space.png'))
+
+REGULAR_SHAPES = tuple(
+    os.path.join("assets", "gameplay", "shapes", "regular", color)
+    for color in os.listdir(os.path.join("assets", "gameplay", "shapes", "regular"))
+)
 
 # Шрифты
 FONT_BASE = pygame.font.Font(FONT_FILE, 19) # Шрифт

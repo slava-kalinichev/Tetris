@@ -7,7 +7,7 @@ import random
 class Tetromino:
     def __init__(self, shape):
         self.shape = shape
-        self.color = random.choice(COLORS)
+        self.image = pygame.image.load(random.choice(REGULAR_SHAPES))
         self.rotation = 0
         self.x = GRID_WIDTH // BLOCK_SIZE // 2 - len(shape[0]) // 2
         self.y = 0
@@ -17,11 +17,11 @@ class Tetromino:
             self.rotate()
 
     def rotate(self):
-        '''
+        """
         Поворачивает фигуру на 90 градусов по часовой стрелке.
         Если фигура выходит за границы или пересекается с другими фигурами,
         она сдвигается влево или вправо, чтобы поместиться.
-        '''
+        """
         prev_shape = self.shape
         prev_x = self.x
 
@@ -58,12 +58,10 @@ class Tetromino:
                             return False
         return True
 
-    def draw(self, surface: pygame.Surface, sprite: pygame.image = None):
+    def draw(self, surface: pygame.Surface):
         """
-        Метод отрисовки. Добавлен необязательный параметр sprite, если для
-        рисования фигуры требуется использовать картинку, а не заливку цвета
+        Метод отрисовки. Рисует фигуру во время падения
         :param surface: Поверхность для рисования (обычно экран)
-        :param sprite: Картинка для рисования
         :return:
         """
         for y in range(len(self.shape)):
@@ -80,20 +78,19 @@ class Tetromino:
                     BLOCK_SIZE
                     )
 
-                    if sprite is None:
-                        pygame.draw.rect(surface, self.color, tmp_rect, 0)
-
-                    else:
-                        surface.blit(sprite, tmp_rect)
+                    surface.blit(self.image, tmp_rect)
 
     def get_shape(self):
         return self.shape
+
+    def get_image(self):
+        return self.image
 
 
 class LockedTetromino(Tetromino):
     def __init__(self, shape):
         super().__init__(shape)
-        self.color = LOCKED_SHAPE_COLOR
+
         self.image = pygame.image.load(LOCKED_SHAPE_IMAGE_PATH)
 
         for _ in range(random.randrange(4)):
@@ -101,11 +98,8 @@ class LockedTetromino(Tetromino):
 
     def rotate(self, init=False):
         if not init:
+            # TODO: добавить звук неудачного поворота (по типу удара по металлу или чего-то подобного)
             pass
 
         else:
             super().rotate()
-
-    def draw(self, surface: pygame.Surface, sprite: pygame.image = None):
-            if sprite is None:
-                super().draw(surface, self.image)

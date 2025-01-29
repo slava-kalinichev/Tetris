@@ -71,7 +71,7 @@ class Game:
         if locked_positions is None:
             locked_positions = {}
 
-        grid = [[BLACK for _ in range(GRID_WIDTH // BLOCK_SIZE)] for _ in range(GRID_HEIGHT // BLOCK_SIZE)]
+        grid = [[EMPTY_FIELD_IMAGE for _ in range(GRID_WIDTH // BLOCK_SIZE)] for _ in range(GRID_HEIGHT // BLOCK_SIZE)]
         for y in range(len(grid)):
             for x in range(len(grid[y])):
                 if (x, y) in locked_positions:
@@ -81,7 +81,8 @@ class Game:
     def draw_field(self, grid):
         for y in range(len(grid)):
             for x in range(len(grid[y])):
-                pygame.draw.rect(self.screen, grid[y][x], (x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), 0)
+                image = grid[y][x]
+                self.screen.blit(image, (x * BLOCK_SIZE, y * BLOCK_SIZE))
 
     def draw_grid(self, grid):
         for y in range(len(grid)):
@@ -96,7 +97,7 @@ class Game:
         for y, row in enumerate(shape):
             for x, cell in enumerate(row):
                 if cell:
-                    if tetromino.y + y >= len(grid) or tetromino.x + x < 0 or tetromino.x + x >= len(grid[0]) or grid[tetromino.y + y][tetromino.x + x] != BLACK:
+                    if tetromino.y + y >= len(grid) or tetromino.x + x < 0 or tetromino.x + x >= len(grid[0]) or grid[tetromino.y + y][tetromino.x + x] != EMPTY_FIELD_IMAGE:
                         return False
         return True
 
@@ -106,7 +107,7 @@ class Game:
             # Находим строки, которые нужно удалить
             rows_to_clear = []
             for y in range(len(grid) - 1, -1, -1):
-                if all(cell != BLACK for cell in grid[y]):
+                if all(cell != EMPTY_FIELD_IMAGE for cell in grid[y]):
                     rows_to_clear.append(y)
 
             # Удаляем строки и сдвигаем блоки вниз
@@ -114,7 +115,7 @@ class Game:
                 # Удаляем строки из сетки
                 for y in sorted(rows_to_clear, reverse=True):
                     del grid[y]
-                    grid.insert(0, [BLACK for _ in
+                    grid.insert(0, [EMPTY_FIELD_IMAGE for _ in
                                     range(GRID_WIDTH // BLOCK_SIZE)])  # Добавляем новую пустую строку сверху
 
                 # Обновляем locked_positions
@@ -170,7 +171,7 @@ class Game:
         # Отрисовываем следующую фигуру
         if next_tetromino:
             shape = next_tetromino.get_shape()
-            color = next_tetromino.color
+            image = next_tetromino.image
             # Размер блока для отрисовки следующей фигуры
             preview_block_size = BLOCK_SIZE // 2
             # Центрируем фигуру в поле "Next"
@@ -179,17 +180,8 @@ class Game:
             for row in range(len(shape)):
                 for col in range(len(shape[row])):
                     if shape[row][col]:
-                        pygame.draw.rect(
-                            self.screen,
-                            color,
-                            (
-                                start_x + col * preview_block_size,
-                                start_y + row * preview_block_size,
-                                preview_block_size,
-                                preview_block_size
-                            ),
-                            0
-                        )
+                        self.screen.blit(image, (start_x + col * preview_block_size, start_y + row * preview_block_size))
+
             y += 235  # Отступ перед инструкцией
 
         if not paused:
@@ -249,7 +241,7 @@ class Game:
 
         for y in range(len(grid) - 1, -1, -1):
             for x in range(len(grid[y])):
-                grid[y][x] = random.choice(COLORS)  # Закрашиваем случайным цветом
+                grid[y][x] = pygame.image.load(random.choice(REGULAR_SHAPES))  # Закрашиваем случайным цветом
 
                 self.draw_field(grid)
                 self.draw_grid(grid)
@@ -262,12 +254,12 @@ class Game:
         # Очищаем grid
         for y in range(len(grid)):
             for x in range(len(grid[y])):
-                grid[y][x] = BLACK
+                grid[y][x] = EMPTY_FIELD_IMAGE
 
         # Заполняем grid на основе locked_positions
-        for (x, y), color in locked_positions.items():
+        for (x, y), image in locked_positions.items():
             if 0 <= y < len(grid) and 0 <= x < len(grid[y]):
-                grid[y][x] = color
+                grid[y][x] = image
 
     def stop(self):
         self.paused = True
@@ -356,7 +348,7 @@ class Game:
                             for y, row in enumerate(current_tetromino.get_shape()):
                                 for x, cell in enumerate(row):
                                     if cell:
-                                        locked_positions[(current_tetromino.x + x, current_tetromino.y + y)] = current_tetromino.color
+                                        locked_positions[(current_tetromino.x + x, current_tetromino.y + y)] = current_tetromino.get_image()
 
                             current_tetromino = next_tetromino
                             next_tetromino = self.generate_tetromino()
@@ -494,7 +486,7 @@ class Game:
                         # Если поле пустое, начисляем 5000 очков
                         self.sync_grid_with_locked_positions(grid, locked_positions)
                         is_field_empty = (
-                                all(all(cell == BLACK for cell in row) for row in grid)  # Все ячейки в grid пусты
+                                all(all(cell == EMPTY_FIELD_IMAGE for cell in row) for row in grid)  # Все ячейки в grid пусты
                                 and not locked_positions  # locked_positions пуст
                         )
                         if is_field_empty:
