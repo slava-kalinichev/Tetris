@@ -20,6 +20,7 @@ class Game:
         self.current_bonus_function = None
         self.bonus_function_used_times = 0
         self.bonus_on_screen = False
+        self.no_bonus_period = 5
 
         self.grid = None
 
@@ -67,19 +68,25 @@ class Game:
         # Частота кадров
         self.clock = pygame.time.Clock()
 
-    def get_random_shape(self, available_shapes):
+    def generate_random_shape(self, available_shapes):
         return SHAPES[random.choice(list(available_shapes.keys()))]
         #return SHAPES['square-shape']
 
     def generate_tetromino(self):
-        # Проверяем, что сейчас нет действия предыдущего бонуса и нет бонуса на экране
-        if not self.bonus_on_screen and self.bonus_function_used_times == 0:
+        # Проверяем, что сейчас нет действия предыдущего бонуса, нет бонуса на экране, а также соблюдается распределение бонусов
+        if (
+                not self.bonus_on_screen
+                and
+                self.bonus_function_used_times == 0
+                and
+                self.no_bonus_period >= MINIMUM_SHAPES_BEFORE_NEW_BONUS
+        ):
             # Создаем бонусную фигуру с шансом 1 / 10
             if random.randint(0, 9) == 0:
                 self.bonus_on_screen = True
                 return BonusTetromino()
 
-        return random.choice(self.type_determination)(self.get_random_shape(self.available_shapes))
+        return random.choice(self.type_determination)(self.generate_random_shape(self.available_shapes))
 
     def get_completion(self):
         return self.is_level_completed
@@ -321,14 +328,18 @@ class Game:
         """
         if self.current_bonus_function is not None:
             if self.bonus_function_used_times <= MAXIMUM_BONUS_APPLY_TIMES:
-                self.bonus_function_used_times += 1
                 return self.current_bonus_function(**kwargs)
 
             else:
                 self.current_bonus_function = None
                 self.bonus_function_used_times = 0
+                self.negotiate_bonus_effects()
 
     def negotiate_bonus_effects(self):
+        """
+        Отменяет действие бонусной функции посредством возвращения к бэкапам
+        :return:
+        """
         self.type_determination = self.type_determination_backup.copy()
         self.available_shapes = self.available_shapes_backup.copy()
 
@@ -413,8 +424,59 @@ class Game:
                                         else:
                                             locked_positions[key] = current_tetromino.get_image()
 
+                            # Выполняем бонусное действие
+                            new_data = self.handle_bonus_function(
+                                score=score,
+                                level=int(self.level),
+                                available_shapes=self.available_shapes,
+                                grid=self.grid,
+                            )
+
+                            # В случае, если функция вернула какое-либо значение, обновляем переменную
+                            if new_data:
+                                # Обнуляем количество фигур без бонусов
+                                self.no_bonus_period = 0
+
+                                # Создаем словарь для каждого из кодовых слов, которое возвращает функция
+                                variables = {
+                                    'score': score,
+                                    'type_determination': self.type_determination,
+                                    'fall_time': fall_time,
+                                    'available_shapes': self.available_shapes,
+                                    'grid': self.grid
+                                }
+
+                                # Распаковываем новую информацию
+                                variable, new_value = new_data
+                                # Меняем значение необходимой переменной
+                                variables[variable] = new_value
+
+                                # Задаем каждой из переменных значение в соответствии со значениями словаря
+                                score, self.type_determination, fall_time, self.available_shapes, self.grid = variables.values()
+
+                                # Отбираем функции мгновенного действия
+                                if variable in ('score', 'grid'):
+                                    self.bonus_function_used_times = 0
+                                    self.current_bonus_function = None
+
+                                # Отбираем функцию, не зависящую от падения фигур
+                                elif variable == 'fall_time':
+                                    # TODO: Задать таймер для определения времени действия бонуса
+                                    pass
+
+                                # Оставшиеся функции зависят от количества упавших фигур
+                                else:
+                                    self.bonus_function_used_times += 1
+
+                                    if self.bonus_function_used_times == MAXIMUM_BONUS_APPLY_TIMES:
+                                        self.bonus_function_used_times = 0
+                                        self.current_bonus_function = None
+
                             current_tetromino = next_tetromino
                             next_tetromino = self.generate_tetromino()
+
+                            # Обновляем переменную количества фигур без бонусов
+                            self.no_bonus_period += 1
 
                             if not self.valid_space(current_tetromino):
                                 game_over = True
@@ -575,28 +637,6 @@ class Game:
                 self.score_animations = [anim for anim in self.score_animations if anim.active]
                 # Создаем объект проекции
                 shadow = Shadow(current_tetromino, self.grid)
-
-                # Выполняем бонусное действие
-                new_data = self.handle_bonus_function(score=score, level=int(self.level))
-
-                # В случае, если функция вернула какое-либо значение, обновляем переменную
-                if new_data:
-                    # Создаем словарь для каждого из кодовых слов, которое возвращает функция
-                    variables = {
-                        'score': score,
-                        'type_determination': self.type_determination,
-                        'fall_time': fall_time,
-                        'available_shapes': self.available_shapes,
-                        'grid': self.grid
-                    }
-
-                    # Распаковываем новую информацию
-                    variable, new_value = new_data
-                    # Меняем значение необходимой переменной
-                    variables[variable] = new_value
-
-                    # Задаем каждой из переменных значение в соответствии со значениями словаря
-                    score, self.type_determination, fall_time, self.available_shapes, self.grid = variables.values()
 
                 # Отрисовка
                 self.screen.fill(BLACK)  # Очистка экрана

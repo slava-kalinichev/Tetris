@@ -4,6 +4,7 @@ import pygame
 
 from values import *
 import random
+from gravity_script import gravity
 
 
 class Tetromino:
@@ -112,6 +113,10 @@ class BonusTetromino(Tetromino):
         super().__init__(shape=SHAPES["dot"])
 
         # Функции бонусов
+        # Каждая функция помимо необходимых параметров принимает неопределенное количество именных значений
+        # Это сделано с целью достижения полиморфизма: в основном цикле мы не знаем, какая функция используется
+        # Таким образом при подаче лишних аргументов ошибки не будет вызвано
+
         # Начисление дополнительных очков
         def prize_points(score: int, level: int, **kwargs) -> tuple[str, int]:
             return 'score', score + BONUS_POINTS * level
@@ -125,13 +130,17 @@ class BonusTetromino(Tetromino):
             pass
 
         # Добавляет новые фигуры
-        def add_more_shapes(**kwargs) -> tuple[str, list]:
-            pass
+        def add_more_shapes(available_shapes: dict[list[list[bool]]], **kwargs) -> tuple[str, list]:
+            # Создаем словарь, содержащий фигуры как из бонусного словаря, так и из заданного
+            new_shapes_dict = available_shapes.copy()
+            new_shapes_dict.update(BONUS_SHAPES)
+            return 'available_shapes', new_shapes_dict
 
         # Каждый квадрат, под которым не стоит другой квадрат, падает вниз.
         # За каждую зачищенную таким образом строку начисляется столько же, сколько за зачистку 1 ряда
-        def apply_gravity(**kwargs) -> tuple[str, list[list]]:
-            pass
+        def apply_gravity(grid: list[list], **kwargs) -> tuple[str, list[list]]:
+            gravity(grid, EMPTY_FIELD_IMAGE)
+            return 'grid', grid
 
         # Структура бонусного класса: словарь, определяющий значения для заданных бонусов
         self.DETERMINANT = {
