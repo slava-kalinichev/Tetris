@@ -152,7 +152,7 @@ LEVEL_DIFFICULTY_SETTINGS = {
         6: 12,
         7: 10,
         8: 8,
-        9: 8,
+        9: 1,
         10: 9,
     },
 
@@ -185,9 +185,9 @@ LEVEL_DIFFICULTY_SETTINGS = {
 PRIZE = 2000  # (* level) - бонус за пустое поле
 
 # Параметры бонусов
-MAXIMUM_BONUS_APPLY_TIMES = 20
-BONUS_POINTS = 1_000
-MINIMUM_SHAPES_BEFORE_NEW_BONUS = 10
+MAXIMUM_BONUS_APPLY_TIMES = 7
+BONUS_POINTS = 500
+MINIMUM_SHAPES_BEFORE_NEW_BONUS = 15
 
 # Формы фигур
 # В виде словаря, чтобы удобнее пользоваться фигурами

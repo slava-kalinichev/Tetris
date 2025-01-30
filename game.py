@@ -50,8 +50,7 @@ class Game:
 
         if locked_shapes_chance:
             self.type_determination = [Tetromino for _ in range(locked_shapes_chance)] + [LockedTetromino]
-
-        self.type_determination_backup = self.type_determination.copy()
+            self.type_determination_backup = self.type_determination.copy()
 
         self.score_goal = LEVEL_DIFFICULTY_SETTINGS[MIN_POINTS][self.selected_level]
         self.line_goal = LEVEL_DIFFICULTY_SETTINGS[MAKE_TETRIS][self.selected_level]
@@ -69,8 +68,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def generate_random_shape(self, available_shapes):
-        return SHAPES[random.choice(list(available_shapes.keys()))]
-        #return SHAPES['square-shape']
+        return self.available_shapes[random.choice(list(available_shapes.keys()))]
 
     def generate_tetromino(self):
         # Проверяем, что сейчас нет действия предыдущего бонуса, нет бонуса на экране, а также соблюдается распределение бонусов
@@ -82,7 +80,7 @@ class Game:
                 self.no_bonus_period >= MINIMUM_SHAPES_BEFORE_NEW_BONUS
         ):
             # Создаем бонусную фигуру с шансом 1 / 10
-            if random.randint(0, 9) == 0:
+            if random.randint(0, 0) == 0:
                 self.bonus_on_screen = True
                 return BonusTetromino()
 
@@ -324,16 +322,10 @@ class Game:
         """
         Используем функцию бонусов
         :param kwargs: Любые аргументы, которые могут понадобиться различным функциям.
-        :return: Изменяет все аргументы, которые ей дают
+        :return: Изменяет аргумент, который зависит от выбранной функции
         """
         if self.current_bonus_function is not None:
-            if self.bonus_function_used_times <= MAXIMUM_BONUS_APPLY_TIMES:
-                return self.current_bonus_function(**kwargs)
-
-            else:
-                self.current_bonus_function = None
-                self.bonus_function_used_times = 0
-                self.negotiate_bonus_effects()
+            return self.current_bonus_function(**kwargs)
 
     def negotiate_bonus_effects(self):
         """
@@ -359,6 +351,7 @@ class Game:
             # Обнуляем значения предыдущего уровня
             self.is_line_goal_completed = False
             self.current_bonus_function = None
+            self.negotiate_bonus_effects()
 
             # Состояние кнопок - словарь для считывания длительного нажатия на кнопки
             keys = {
@@ -459,6 +452,10 @@ class Game:
                                     self.bonus_function_used_times = 0
                                     self.current_bonus_function = None
 
+                                    if variables == 'score':
+                                        # TODO: Сделать анимацию начисления очков, начисляется level * 500
+                                        pass
+
                                 # Отбираем функцию, не зависящую от падения фигур
                                 elif variable == 'fall_time':
                                     # TODO: Задать таймер для определения времени действия бонуса
@@ -471,6 +468,7 @@ class Game:
                                     if self.bonus_function_used_times == MAXIMUM_BONUS_APPLY_TIMES:
                                         self.bonus_function_used_times = 0
                                         self.current_bonus_function = None
+                                        self.negotiate_bonus_effects()
 
                             current_tetromino = next_tetromino
                             next_tetromino = self.generate_tetromino()
