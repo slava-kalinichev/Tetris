@@ -7,8 +7,8 @@ class ScoreAnimation:
         self.start_pos = start_pos  # Начальная позиция (x, y)
         self.end_pos = end_pos  # Конечная позиция (x, y)
         self.current_pos = list(start_pos)  # Текущая позиция текста
-        self.speed = 0.01  # Начальная скорость (медленно)
-        self.max_speed = 0.5  # Максимальная скорость (быстро)
+        self.speed = 0.7  # Начальная скорость (медленно)
+        self.max_speed = 1.7  # Максимальная скорость (быстро)
         self.acceleration = 0.01  # Ускорение
         self.font_size = 30  # Размер шрифта (постоянный)
         self.font = pygame.font.Font("assets/fonts/1_MinecraftRegular1.otf", self.font_size)  # Шрифт
