@@ -60,8 +60,8 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def get_random_shape(self, available_shapes):
-        #return SHAPES[random.choice(list(available_shapes.keys()))]
-        return SHAPES['square-shape']
+        return SHAPES[random.choice(list(available_shapes.keys()))]
+        #return SHAPES['square-shape']
 
     def generate_tetromino(self):
         return random.choice(self.type_determination)(self.get_random_shape(self.available_shapes))
