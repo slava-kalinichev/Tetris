@@ -113,24 +113,24 @@ class BonusTetromino(Tetromino):
 
         # Функции бонусов
         # Начисление дополнительных очков
-        def prize_points(score: int, level: int, **kwargs) -> int:
-            return score + BONUS_POINTS * level
+        def prize_points(score: int, level: int, **kwargs) -> tuple[str, int]:
+            return 'score', score + BONUS_POINTS * level
 
         # Убирает из возможных фигур металлические фигуры
-        def remove_locked_shapes(**kwargs):
-            pass
+        def remove_locked_shapes(**kwargs) -> tuple[str, list]:
+            return 'type_determination', [Tetromino]
 
         # Замедляет скорость падения фигур
-        def slow_fall_speed(**kwargs):
+        def slow_fall_speed(**kwargs) -> tuple[str, float]:
             pass
 
         # Добавляет новые фигуры
-        def add_more_shapes(**kwargs):
+        def add_more_shapes(**kwargs) -> tuple[str, list]:
             pass
 
         # Каждый квадрат, под которым не стоит другой квадрат, падает вниз.
         # За каждую зачищенную таким образом строку начисляется столько же, сколько за зачистку 1 ряда
-        def apply_gravity(**kwargs):
+        def apply_gravity(**kwargs) -> tuple[str, list[list]]:
             pass
 
         # Структура бонусного класса: словарь, определяющий значения для заданных бонусов
@@ -146,7 +146,8 @@ class BonusTetromino(Tetromino):
         self.bonus = random.randrange(0, 5)
 
         # Установка бонуса и функции, которую будет выполнять бонус
-        self.image, self.function = self.DETERMINANT[self.bonus]
+        image_path, self.function = self.DETERMINANT[self.bonus]
+        self.image = pygame.image.load(image_path)
 
     # Отдает функцию, которая будет исполняться
     def get_function(self):
