@@ -1,3 +1,5 @@
+import builtins
+
 import pygame
 
 from values import *
@@ -109,9 +111,35 @@ class BonusTetromino(Tetromino):
     def __init__(self):
         super().__init__(shape=SHAPES["dot"])
 
+        # Функции бонусов
+        # Начисление дополнительных очков
+        def prize_points(score: int, level: int, **kwargs) -> int:
+            return score + BONUS_POINTS * level
+
+        # Убирает из возможных фигур металлические фигуры
+        def remove_locked_shapes(**kwargs):
+            pass
+
+        # Замедляет скорость падения фигур
+        def slow_fall_speed(**kwargs):
+            pass
+
+        # Добавляет новые фигуры
+        def add_more_shapes(**kwargs):
+            pass
+
+        # Каждый квадрат, под которым не стоит другой квадрат, падает вниз.
+        # За каждую зачищенную таким образом строку начисляется столько же, сколько за зачистку 1 ряда
+        def apply_gravity(**kwargs):
+            pass
+
         # Структура бонусного класса: словарь, определяющий значения для заданных бонусов
         self.DETERMINANT = {
-            0: (BONUS_IMAGES[0], self.prize_points)
+            0: (BONUS_IMAGES[0], prize_points),
+            1: (BONUS_IMAGES[1], remove_locked_shapes),
+            2: (BONUS_IMAGES[2], slow_fall_speed),
+            3: (BONUS_IMAGES[3], add_more_shapes),
+            4: (BONUS_IMAGES[4], apply_gravity)
         }
 
         # Выбор бонуса
@@ -120,6 +148,6 @@ class BonusTetromino(Tetromino):
         # Установка бонуса и функции, которую будет выполнять бонус
         self.image, self.function = self.DETERMINANT[self.bonus]
 
-    def prize_points(self):
-        pass
-
+    # Отдает функцию, которая будет исполняться
+    def get_function(self):
+        return self.function

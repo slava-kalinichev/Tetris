@@ -4,7 +4,7 @@ import time
 import csv
 from values import *
 from score_animation import *
-from tetromino import Tetromino, LockedTetromino
+from tetromino import Tetromino, LockedTetromino, BonusTetromino
 from shadow import Shadow
 from win_screen import WinScreen
 from menu_handlers import *
@@ -16,6 +16,10 @@ class Game:
 
         self.level = level
         self.is_level_completed = False
+        self.current_bonus_function = None
+        self.bonus_function_limit = 0
+
+        self.grid = None
 
         self.level_best_score_data = [('level', 'score')]
 
@@ -71,57 +75,73 @@ class Game:
         if locked_positions is None:
             locked_positions = {}
 
-        grid = [[EMPTY_FIELD_IMAGE for _ in range(GRID_WIDTH // BLOCK_SIZE)] for _ in range(GRID_HEIGHT // BLOCK_SIZE)]
-        for y in range(len(grid)):
-            for x in range(len(grid[y])):
+        self.grid = [[EMPTY_FIELD_IMAGE for _ in range(GRID_WIDTH // BLOCK_SIZE)] for _ in range(GRID_HEIGHT // BLOCK_SIZE)]
+        for y in range(len(self.grid)):
+            for x in range(len(self.grid[y])):
                 if (x, y) in locked_positions:
-                    grid[y][x] = locked_positions[(x, y)]
-        return grid
+                    self.grid[y][x] = locked_positions[(x, y)]
 
-    def draw_field(self, grid):
-        for y in range(len(grid)):
-            for x in range(len(grid[y])):
-                image = grid[y][x]
+    def draw_field(self):
+        for y in range(len(self.grid)):
+            for x in range(len(self.grid[y])):
+                image = self.grid[y][x]
+
+                # Отбрасываем клетку, содержащую информацию о клетке с бонусом
+                if isinstance(image, tuple):
+                    image = image[1]
+
                 self.screen.blit(image, (x * BLOCK_SIZE, y * BLOCK_SIZE))
 
-    def draw_grid(self, grid):
-        for y in range(len(grid)):
+    def draw_grid(self):
+        for y in range(len(self.grid)):
             pygame.draw.line(self.screen, GRAY, (0, y * BLOCK_SIZE), (GRID_WIDTH, y * BLOCK_SIZE))
 
-        for x in range(len(grid[0])):
+        for x in range(len(self.grid[0])):
             pygame.draw.line(self.screen, GRAY, (x * BLOCK_SIZE, 0), (x * BLOCK_SIZE, GRID_HEIGHT))
 
-    def valid_space(self, tetromino, grid):
+    def valid_space(self, tetromino):
         shape = tetromino.get_shape()
 
         for y, row in enumerate(shape):
             for x, cell in enumerate(row):
                 if cell:
-                    if tetromino.y + y >= len(grid) or tetromino.x + x < 0 or tetromino.x + x >= len(grid[0]) or grid[tetromino.y + y][tetromino.x + x] != EMPTY_FIELD_IMAGE:
+                    if (
+                            tetromino.y + y >= len(self.grid)
+                            or
+                            tetromino.x + x < 0
+                            or
+                            tetromino.x + x >= len(self.grid[0])
+                            or
+                            self.grid[tetromino.y + y][tetromino.x + x] != EMPTY_FIELD_IMAGE
+                    ):
                         return False
         return True
 
-    def clear_rows(self, grid, locked_positions, current_tetromino, game_over):
+    def clear_rows(self, locked_positions, game_over):
         cleared_rows = 0
         if not game_over:
             # Находим строки, которые нужно удалить
             rows_to_clear = []
-            for y in range(len(grid) - 1, -1, -1):
-                if all(cell != EMPTY_FIELD_IMAGE for cell in grid[y]):
+            for y in range(len(self.grid) - 1, -1, -1):
+                if all(cell != EMPTY_FIELD_IMAGE for cell in self.grid[y]):
                     rows_to_clear.append(y)
+
+                    for cell in self.grid[y]:
+                        if isinstance(cell, tuple):
+                            self.current_bonus_function = cell[0].get_function()
 
             # Удаляем строки и сдвигаем блоки вниз
             if rows_to_clear:
                 # Удаляем строки из сетки
                 for y in sorted(rows_to_clear, reverse=True):
-                    del grid[y]
-                    grid.insert(0, [EMPTY_FIELD_IMAGE for _ in
+                    del self.grid[y]
+                    self.grid.insert(0, [EMPTY_FIELD_IMAGE for _ in
                                     range(GRID_WIDTH // BLOCK_SIZE)])  # Добавляем новую пустую строку сверху
 
                 # Обновляем locked_positions
                 new_locked_positions = {}
                 shift = 0  # Счетчик сдвига
-                for y in range(len(grid) - 1, -1, -1):
+                for y in range(len(self.grid) - 1, -1, -1):
                     # Если строка была удалена, увеличиваем сдвиг
                     if y in rows_to_clear:
                         shift += 1
@@ -235,13 +255,13 @@ class Game:
             for line in self.level_best_score_data:
                 writer.writerow(line)
 
-    def game_over_animation(self, grid):
+    def game_over_animation(self):
         # Анимация поражения: закрашиваем поле снизу вверх
         game_over_sound.play()
 
-        for y in range(len(grid) - 1, -1, -1):
-            for x in range(len(grid[y])):
-                grid[y][x] = pygame.image.load(random.choice(REGULAR_SHAPES))  # Закрашиваем случайным цветом
+        for y in range(len(self.grid) - 1, -1, -1):
+            for x in range(len(self.grid[y])):
+                self.grid[y][x] = pygame.image.load(random.choice(REGULAR_SHAPES))  # Закрашиваем случайным цветом
 
                 self.draw_field(grid)
                 self.draw_grid(grid)
@@ -249,17 +269,17 @@ class Game:
                 pygame.display.update()
                 pygame.time.delay(10)  # Задержка для плавности анимации
 
-    def sync_grid_with_locked_positions(self, grid, locked_positions):
+    def sync_grid_with_locked_positions(self, locked_positions):
         # Синхронизирует grid с locked_positions.
         # Очищаем grid
-        for y in range(len(grid)):
-            for x in range(len(grid[y])):
-                grid[y][x] = EMPTY_FIELD_IMAGE
+        for y in range(len(self.grid)):
+            for x in range(len(self.grid[y])):
+                self.grid[y][x] = EMPTY_FIELD_IMAGE
 
         # Заполняем grid на основе locked_positions
         for (x, y), image in locked_positions.items():
-            if 0 <= y < len(grid) and 0 <= x < len(grid[y]):
-                grid[y][x] = image
+            if 0 <= y < len(self.grid) and 0 <= x < len(self.grid[y]):
+                self.grid[y][x] = image
 
     def stop(self):
         self.paused = True
@@ -269,12 +289,27 @@ class Game:
         self.is_level_completed = True
         do_core = WinScreen()
         win_sfx_sound.play()
-        isQuit = do_core.core(self.screen)
+        is_quit = do_core.core(self.screen)
         win_sfx_sound.stop()
-        if isQuit:
+        if is_quit:
             return True
         else:
             return False
+
+    def handle_bonus_function(self, **kwargs):
+        """
+        Используем функцию бонусов
+        :param kwargs: Любые аргументы, которые могут понадобиться различным функциям.
+        :return: Изменяет все аргументы, которые ей дают
+        """
+        if self.current_bonus_function is not None:
+            if self.bonus_function_limit <= MAXIMUM_BONUS_APPLY_TIMES:
+                self.current_bonus_function(**kwargs)
+                self.bonus_function_limit += 1
+
+            else:
+                self.current_bonus_function = None
+                self.bonus_function_limit = 0
 
     def play(self):
         while True:
@@ -291,6 +326,7 @@ class Game:
 
             # Обнуляем значения предыдущего уровня
             self.is_line_goal_completed = False
+            self.current_bonus_function = None
 
             # Состояние кнопок - словарь для считывания длительного нажатия на кнопки
             keys = {
@@ -329,7 +365,7 @@ class Game:
                             keys[pygame.K_LEFT]['pressed'] = False
                             keys[pygame.K_RIGHT]['pressed'] = False
 
-                grid = self.create_grid(locked_positions)
+                self.create_grid(locked_positions)
                 fall_time += self.clock.get_rawtime()
                 self.clock.tick()
 
@@ -338,7 +374,7 @@ class Game:
                         fall_time = 0
                         current_tetromino.y += 1
 
-                        if not self.valid_space(current_tetromino, grid):
+                        if not self.valid_space(current_tetromino):
                             current_tetromino.y -= 1
 
                             self.fall_speed = tmp_speed if tmp_speed else self.fall_speed
@@ -348,15 +384,21 @@ class Game:
                             for y, row in enumerate(current_tetromino.get_shape()):
                                 for x, cell in enumerate(row):
                                     if cell:
-                                        locked_positions[(current_tetromino.x + x, current_tetromino.y + y)] = current_tetromino.get_image()
+                                        key = (current_tetromino.x + x, current_tetromino.y + y)
+
+                                        if isinstance(current_tetromino, BonusTetromino):
+                                            locked_positions[key] = (current_tetromino, current_tetromino.get_image())
+
+                                        else:
+                                            locked_positions[key] = current_tetromino.get_image()
 
                             current_tetromino = next_tetromino
                             next_tetromino = self.generate_tetromino()
 
-                            if not self.valid_space(current_tetromino, grid):
+                            if not self.valid_space(current_tetromino):
                                 game_over = True
                                 score -= self.selected_level * 10  # Корректировка счёта за последнее приземление
-                                self.game_over_animation(grid)  # Анимация поражения
+                                self.game_over_animation()  # Анимация поражения
                                 self.fall_speed = self.starting_fall_speed
                                 self.is_level_completed = False
                                 return
@@ -375,7 +417,7 @@ class Game:
                             if key == pygame.K_LEFT:
                                 current_tetromino.x -= 1
 
-                                if not self.valid_space(current_tetromino, grid):
+                                if not self.valid_space(current_tetromino):
                                     current_tetromino.x += 1
 
                                 move_sound.play()  # Звук движения
@@ -383,7 +425,7 @@ class Game:
                             elif key == pygame.K_RIGHT:
                                 current_tetromino.x += 1
 
-                                if not self.valid_space(current_tetromino, grid):
+                                if not self.valid_space(current_tetromino):
                                     current_tetromino.x -= 1
 
                                 move_sound.play()  # Звук движения
@@ -391,7 +433,7 @@ class Game:
                             elif key == pygame.K_DOWN:
                                 current_tetromino.y += 1
 
-                                if not self.valid_space(current_tetromino, grid):
+                                if not self.valid_space(current_tetromino):
                                     current_tetromino.y -= 1
 
                             keys[key]['last_time'] = current_time
@@ -411,7 +453,7 @@ class Game:
                         if event.key == pygame.K_LEFT:
                             current_tetromino.x -= 1
 
-                            if not self.valid_space(current_tetromino, grid):
+                            if not self.valid_space(current_tetromino):
                                 current_tetromino.x += 1
 
                             keys[pygame.K_LEFT]['pressed'] = True
@@ -421,7 +463,7 @@ class Game:
                         if event.key == pygame.K_RIGHT:
                             current_tetromino.x += 1
 
-                            if not self.valid_space(current_tetromino, grid):
+                            if not self.valid_space(current_tetromino):
                                 current_tetromino.x -= 1
 
                             keys[pygame.K_RIGHT]['pressed'] = True
@@ -440,7 +482,7 @@ class Game:
                             rotate_sound.play()  # Звук поворота
                             current_tetromino.rotate()
 
-                            if not self.valid_space(current_tetromino, grid):
+                            if not self.valid_space(current_tetromino):
                                 current_tetromino.rotate()
                                 current_tetromino.rotate()
                                 current_tetromino.rotate()
@@ -465,7 +507,7 @@ class Game:
 
 
                 # Очистка строк и сброс fall_time
-                cleared_rows = self.clear_rows(grid, locked_positions, current_tetromino, game_over)
+                cleared_rows = self.clear_rows(locked_positions, game_over)
                 if not game_over and cleared_rows:
                     self.fall_speed *= 0.975  # Ускорение падения при сборке линии
                     fall_time = 0  # Сбрасываем fall_time после очистки строки
@@ -484,9 +526,9 @@ class Game:
                         self.score_animations.append(ScoreAnimation(points, start_pos, end_pos))
 
                         # Если поле пустое, начисляем 5000 очков
-                        self.sync_grid_with_locked_positions(grid, locked_positions)
+                        self.sync_grid_with_locked_positions(locked_positions)
                         is_field_empty = (
-                                all(all(cell == EMPTY_FIELD_IMAGE for cell in row) for row in grid)  # Все ячейки в grid пусты
+                                all(all(cell == EMPTY_FIELD_IMAGE for cell in row) for row in self.grid)  # Все ячейки в grid пусты
                                 and not locked_positions  # locked_positions пуст
                         )
                         if is_field_empty:
@@ -513,16 +555,16 @@ class Game:
                 self.score_animations = [anim for anim in self.score_animations if anim.active]
 
                 # Создаем объект проекции
-                shadow = Shadow(current_tetromino, grid)
+                shadow = Shadow(current_tetromino, self.grid)
 
                 # Отрисовка
                 self.screen.fill(BLACK)  # Очистка экрана
-                self.draw_field(grid)  # Рисуем содержимое поля
+                self.draw_field()  # Рисуем содержимое поля
                 current_tetromino.draw(self.screen)  # Рисуем фигуру
                 shadow.draw(self.screen)  # Отрисовываем проекцию
                 self.draw_instructions(score, record, next_tetromino, self.paused)  # Рисуем инструкцию
                 self.draw_border()  # Рисуем рамку вокруг игрового поля
-                self.draw_grid(grid)  # Рисуем сетку поля
+                self.draw_grid()  # Рисуем сетку поля
 
                 # Отрисовываем активные анимации
                 for animation in self.score_animations:
