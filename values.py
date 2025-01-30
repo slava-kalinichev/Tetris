@@ -53,7 +53,7 @@ RECORD_FILE = os.path.join("data", "high_score.csv")
 LEVELS_FILE = os.path.join("data", "level_status.csv")
 CLOSED_LEVEL_PATH = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
 FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
-LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked test.png')
+LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked.png')
 EMPTY_FIELD_IMAGE = pygame.image.load(os.path.join('assets', 'gameplay', 'background', 'empty_space.png'))
 
 BONUS_IMAGES = tuple(
