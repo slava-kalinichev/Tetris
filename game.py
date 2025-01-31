@@ -47,6 +47,7 @@ class Game:
 
         locked_shapes_chance = LEVEL_DIFFICULTY_SETTINGS[LOCKED_SHAPES][self.selected_level]
         self.type_determination = [Tetromino]
+        self.type_determination_backup = [Tetromino]
 
         if locked_shapes_chance:
             self.type_determination = [Tetromino for _ in range(locked_shapes_chance)] + [LockedTetromino]
@@ -193,7 +194,7 @@ class Game:
         y += 30  # Увеличиваем отступ перед полем "Next"
 
         # Отображаем рекорд
-        record_text = FONT_BASE.render(f"HI: {record}", True, WHITE)
+        record_text = FONT_BASE.render(f"BEST: {record}", True, WHITE)
         self.screen.blit(record_text, (x, y))
         y += 40  # Увеличиваем отступ перед полем "Next"
 
