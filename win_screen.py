@@ -77,6 +77,6 @@ class WinScreen:
             # Если хотя бы одна из кнопок нажата, то список будет иметь одно значение, отличающееся от None
             if any(option):
                 # Запись списка нажатий на кнопки в файл
-                with open("data/win_option.txt", "w") as file:
+                with open("data/handler.txt", "w") as file:
                     file.write(str(option))
                 return option

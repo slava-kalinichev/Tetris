@@ -1,5 +1,5 @@
 import builtins
-
+import csv
 import pygame
 
 from values import *
@@ -61,7 +61,7 @@ class Tetromino:
                             return False
         return True
 
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface, is_current_glow):
         """
         Метод отрисовки. Рисует фигуру во время падения
         :param surface: Поверхность для рисования (обычно экран)
@@ -69,19 +69,37 @@ class Tetromino:
         """
         for y in range(len(self.shape)):
             row = self.shape[y]
-
             for x in range(len(row)):
                 cell = row[x]
-
                 if cell:
-                    tmp_rect = (
-                    (self.x + x) * BLOCK_SIZE,
-                    (self.y + y) * BLOCK_SIZE,
-                    BLOCK_SIZE,
-                    BLOCK_SIZE
+                    # Координаты и размеры блока
+                    block_rect = pygame.Rect(
+                        (self.x + x) * BLOCK_SIZE,
+                        (self.y + y) * BLOCK_SIZE,
+                        BLOCK_SIZE,
+                        BLOCK_SIZE
                     )
 
-                    surface.blit(self.image, tmp_rect)
+                    # Рисуем свечение
+                    if is_current_glow:
+                        self.draw_glow(surface, (0, 0, 255), pygame.Rect(block_rect), glow_radius=4, alpha=120)
+
+                    # Рисуем сам блок
+                    surface.blit(self.image, block_rect)
+
+    def draw_glow(self, screen, color, rect, glow_radius=10, alpha=100):
+        """
+        Рисует свечение вокруг прямоугольника.
+        :param screen: Экран Pygame.
+        :param color: Цвет свечения (например, (255, 0, 0) для красного).
+        :param rect: Прямоугольник, вокруг которого рисуется свечение.
+        :param glow_radius: Радиус свечения.
+        :param alpha: Прозрачность свечения (0-255).
+        """
+        glow_surface = pygame.Surface((rect.width + glow_radius * 2, rect.height + glow_radius * 2), pygame.SRCALPHA)
+        pygame.draw.rect(glow_surface, (*color, alpha), (0, 0, glow_surface.get_width(), glow_surface.get_height()),
+                         border_radius=5)
+        screen.blit(glow_surface, (rect.x - glow_radius, rect.y - glow_radius))
 
     def get_shape(self):
         return self.shape
@@ -152,12 +170,15 @@ class BonusTetromino(Tetromino):
         }
 
         # Выбор бонуса
-        #self.bonus = random.randrange(0, 5)
-        self.bonus = 3
+        self.bonus = random.randrange(0, 5)
+        #self.bonus = 4
 
         # Установка бонуса и функции, которую будет выполнять бонус
         image_path, self.function = self.DETERMINANT[self.bonus]
         self.image = pygame.image.load(image_path)
+
+        with open("data/handler.txt", "w") as file:
+            file.write(self.function.__name__)
 
     # Отдает функцию, которая будет исполняться
     def get_function(self):

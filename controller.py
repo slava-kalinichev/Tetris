@@ -146,7 +146,7 @@ class Controller:
                     self.level_map.update_csv_data()
 
                     # Чтение списка нажатий на кнопки из файла
-                    with open("data/win_option.txt", "r") as file:
+                    with open("data/handler.txt", "r") as file:
                         option = file.read()
 
                     if 'continue' in option:  # Ветвь continue не активна (можно убрать)

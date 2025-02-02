@@ -46,6 +46,7 @@ class Game:
         locked_shapes_chance = LEVEL_DIFFICULTY_SETTINGS[LOCKED_SHAPES][self.selected_level]
         self.type_determination = [Tetromino]
         self.type_determination_backup = [Tetromino]
+        self.is_current_glow = False
 
         if locked_shapes_chance:
             self.type_determination = [Tetromino for _ in range(locked_shapes_chance)] + [LockedTetromino]
@@ -266,10 +267,14 @@ class Game:
 
         # Отображаем надпись "Minimum shapes until bonus:" и значение, если нет бонуса на экране
         shapes_til_bonus = MINIMUM_SHAPES_BEFORE_NEW_BONUS - self.no_bonus_period + 2
-        if (not self.bonus_on_screen or shapes_til_bonus in [1, 2]) and shapes_til_bonus >= 0:
-            bonus_text = FONT_CONTROLS.render(f"MinSUB: {shapes_til_bonus}", True, WHITE)
+        with open("data/handler.txt", "r") as file:
+            bonus_func = file.read()
+        if not self.bonus_on_screen and (shapes_til_bonus == MINIMUM_SHAPES_BEFORE_NEW_BONUS + 1 or shapes_til_bonus < 0):
+            bonus_text = FONT_CONTROLS.render(f"Bonus processing..", True, WHITE)
+        elif not self.bonus_on_screen or shapes_til_bonus in [1, 2]:
+            bonus_text = FONT_CONTROLS.render(f"Bonus in {shapes_til_bonus} shapes", True, (255, 255, 0))
         else:
-            bonus_text = FONT_CONTROLS.render(f"On-screen bonus", True, (0, 255, 0))
+            bonus_text = FONT_CONTROLS.render(f"{bonus_func}", True, (0, 255, 0))
         if bonus_text:
             self.screen.blit(bonus_text, (x, y))
             y += 30  # Отступ перед следующей строкой
@@ -701,7 +706,10 @@ class Game:
                 # Отрисовка
                 self.screen.fill(BLACK)  # Очистка экрана
                 self.draw_field()  # Рисуем содержимое поля
-                current_tetromino.draw(self.screen)  # Рисуем фигуру
+                if not self.is_current_glow:
+                    current_tetromino.draw(self.screen, False)  # Рисуем простую фигуру
+                else:
+                    current_tetromino.draw(self.screen, True)  # Рисуем фигуру со свечением
                 shadow.draw(self.screen)  # Отрисовываем проекцию
                 self.draw_instructions(score, record, next_tetromino, self.paused)  # Рисуем инструкцию
                 self.draw_border()  # Рисуем рамку вокруг игрового поля
