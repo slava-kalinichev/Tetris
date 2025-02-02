@@ -1,12 +1,13 @@
 from values import *
 
 class Shadow:
-    def __init__(self, tetromino, grid_state):
+    def __init__(self, tetromino, grid_state, pr_tr=128):
         self.tetromino = tetromino  # Ссылка на текущую фигуру
         self.grid_state = grid_state  # Состояние сетки (занятые/пустые ячейки)
         self.shape = tetromino.get_shape()  # Форма фигуры
         self.x = tetromino.x  # Позиция по X
         self.y = self.calculate_y()  # Позиция по Y (рассчитывается)
+        self.pr_tr = pr_tr
 
     def calculate_y(self):
         """Рассчитывает Y-координату проекции."""
@@ -33,7 +34,7 @@ class Shadow:
         shape = self.tetromino.get_shape()
         image = self.tetromino.get_image()
         shadow_image = image.copy()  # Создаем копию изображения фигуры
-        shadow_image.set_alpha(100)  # Устанавливаем прозрачность (0 - полностью прозрачная, 255 - непрозрачная)
+        shadow_image.set_alpha(self.pr_tr)  # Устанавливаем прозрачность (0 - полностью прозрачная, 255 - непрозрачная)
 
         # Используем self.y, который был рассчитан в calculate_y()
         for row in range(len(self.shape)):

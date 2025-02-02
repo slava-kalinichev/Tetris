@@ -51,6 +51,7 @@ INFO_WIDTH = 205  # Ширина области для инструкции
 # Файлы
 RECORD_FILE = os.path.join("data", "high_score.csv")
 LEVELS_FILE = os.path.join("data", "level_status.csv")
+SETTINGS_FILE = os.path.join("data", "settings.csv")
 CLOSED_LEVEL_PATH = os.path.join('assets', 'levels', 'locked', 'level_closed.png')
 FONT_FILE = os.path.join("assets", "fonts", "1_MinecraftRegular1.otf")
 LOCKED_SHAPE_IMAGE_PATH = os.path.join('assets', 'gameplay', 'shapes', 'locked', 'locked.png')
@@ -72,6 +73,7 @@ FONT_KEY = pygame.font.Font(FONT_FILE, 22) # Шрифт для ключевых 
 FONT_SCORE = pygame.font.Font(FONT_FILE, 24) # Шрифт для счета
 FONT_CONTROLS = pygame.font.Font(FONT_FILE, 16)
 FONT_TITLE = pygame.font.Font(FONT_FILE, 40)
+FONT_SETTINGS = pygame.font.Font(FONT_FILE, 30)
 FONT_PAUSE = pygame.font.Font(FONT_FILE, 60)
 FONT_SPECIFIC = pygame.font.Font(None, 36)
 

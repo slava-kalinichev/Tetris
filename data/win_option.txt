@@ -1,1 +1,1 @@
-[None, 'main menu', None]
+['next', None, None]

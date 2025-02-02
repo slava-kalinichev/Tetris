@@ -21,6 +21,7 @@ class Game:
         self.bonus_function_used_times = 0
         self.bonus_on_screen = False
         self.no_bonus_period = 5
+        self.pr_tr = self.load_settings()
 
         self.grid = None
 
@@ -184,6 +185,30 @@ class Game:
 
         return cleared_rows
 
+    def load_settings(self):
+        """Загружает настройки из файла settings.csv и применяет их."""
+        try:
+            with open(SETTINGS_FILE, mode='r') as file:
+                reader = csv.DictReader(file)
+                settings = next(reader, {})
+                sound_effects = settings.get('sound_effects')
+                pr_tr = int(settings.get('transparency'))
+
+                # Устанавливаем громкость звуков
+                if sound_effects == "False":
+                    confetti_sound.set_volume(0)
+                    drop_sound.set_volume(0)
+                    force_sound.set_volume(0)
+                    move_sound.set_volume(0)
+                    rotate_sound.set_volume(0)
+                    clear_sound.set_volume(0)
+                    game_over_sound.set_volume(0)
+                    main_sfx_sound.set_volume(0)
+                    win_sfx_sound.set_volume(0)
+            return pr_tr
+        except FileNotFoundError:
+            return 100
+
     def draw_instructions(self, score, record, next_tetromino, paused):
         x = GRID_WIDTH + 16  # Отступ от игрового поля
         y = 20  # Начальная позиция по вертикали
@@ -194,7 +219,7 @@ class Game:
         y += 30  # Увеличиваем отступ перед полем "Next"
 
         # Отображаем рекорд
-        record_text = FONT_BASE.render(f"BEST: {record}", True, WHITE)
+        record_text = FONT_BASE.render(f"Best: {record}", True, WHITE)
         self.screen.blit(record_text, (x, y))
         y += 40  # Увеличиваем отступ перед полем "Next"
 
@@ -635,7 +660,7 @@ class Game:
                 # Удаляем завершённые анимации
                 self.score_animations = [anim for anim in self.score_animations if anim.active]
                 # Создаем объект проекции
-                shadow = Shadow(current_tetromino, self.grid)
+                shadow = Shadow(current_tetromino, self.grid, self.pr_tr)
 
                 # Отрисовка
                 self.screen.fill(BLACK)  # Очистка экрана

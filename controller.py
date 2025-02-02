@@ -23,7 +23,7 @@ class Controller:
             'main menu': self.manage_main_menu,
             'map': self.manage_map_menu,
             'level': self.manage_level,
-            'settings': self.stop
+            'settings': self.manage_settings
         }
 
         self.state = self.STATES[0]
@@ -203,6 +203,20 @@ class Controller:
             # Если хотя бы одна из кнопок нажата, то список будет иметь одно значение, отличающееся от None
             if any(option):
                 return option
+
+    def manage_settings(self):
+        from settings import SettingsMenu
+        settings_menu = SettingsMenu(SCREEN_WIDTH, SCREEN_HEIGHT)
+        while self.state == 'settings':
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.state = self.STATES[0]  # Возвращаемся в главное меню при нажатии на системный крестик
+                result = settings_menu.handle_event(event)
+                if result == 'close':
+                    self.state = self.STATES[0]  # Возвращаемся в главное меню
+
+            settings_menu.draw(self.screen)
+            self.clock.tick(FPS)
 
     def start(self):
         while self.run:
