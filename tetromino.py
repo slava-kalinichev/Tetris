@@ -127,7 +127,7 @@ class BonusTetromino(Tetromino):
 
         # Замедляет скорость падения фигур
         def slow_fall_speed(**kwargs) -> tuple[str, float]:
-            pass
+            return 'fall_speed', BONUS_SPEED
 
         # Добавляет новые фигуры
         def add_more_shapes(available_shapes: dict[list[list[bool]]], **kwargs) -> tuple[str, list]:
@@ -153,7 +153,7 @@ class BonusTetromino(Tetromino):
 
         # Выбор бонуса
         #self.bonus = random.randrange(0, 5)
-        self.bonus = 4
+        self.bonus = 2
 
         # Установка бонуса и функции, которую будет выполнять бонус
         image_path, self.function = self.DETERMINANT[self.bonus]

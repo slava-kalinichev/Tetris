@@ -104,6 +104,8 @@ LOCKED_SHAPES = 'locked_shape_chance'
 MAKE_TETRIS = 'clear_four_lines_at_once'
 POINTS_PER_LINE = 'points_per_line'
 
+BONUS_SPEED = 0.8 # Бонусная скорость
+
 # Словарь сложности уровней
 LEVEL_DIFFICULTY_SETTINGS = {
     SPEED: {

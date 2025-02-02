@@ -8,7 +8,6 @@ from tetromino import Tetromino, LockedTetromino, BonusTetromino
 from shadow import Shadow
 from win_screen import WinScreen
 from menu_handlers import *
-from PIL import Image
 
 
 class Game:
@@ -69,6 +68,20 @@ class Game:
         # Частота кадров
         self.clock = pygame.time.Clock()
 
+        self.original_fall_speed = self.fall_speed
+        self.pause_start_time = None  # Время начала паузы
+        self.bonus_start_time = None  # Время начала бонуса
+        self.bonus_duration = 20  # Длительность бонуса в секундах
+
+    def check_bonus_timer(self):
+        if self.bonus_start_time is not None:
+            current_time = time.time()
+            if current_time - self.bonus_start_time >= self.bonus_duration:
+                self.fall_speed = self.original_fall_speed  # Возвращаем исходную скорость
+                self.bonus_start_time = None  # Сбрасываем таймер
+                self.bonus_function_used_times = 0
+                self.current_bonus_function = None
+
     def generate_random_shape(self, available_shapes):
         return self.available_shapes[random.choice(list(available_shapes.keys()))]
 
@@ -78,8 +91,6 @@ class Game:
                 not self.bonus_on_screen
                 and
                 self.bonus_function_used_times == 0
-                and
-                self.no_bonus_period >= MINIMUM_SHAPES_BEFORE_NEW_BONUS
         ):
             # Создаем бонусную фигуру с шансом 1 / 10
             if random.randint(0, 0) == 0:
@@ -365,12 +376,11 @@ class Game:
         while True:
             # Инициализация игры
             locked_positions = {}
-            tmp_speed = None
 
             current_tetromino = self.generate_tetromino()
             next_tetromino = self.generate_tetromino()
             fall_time = 0
-            accelerated_fall_speed = 0.05
+            accelerated_fall_speed = 0.04
             score = 0
             record = self.level_best_score_data[int(self.level)][1]
 
@@ -390,6 +400,7 @@ class Game:
             game_over = False
 
             while running:
+                print(self.fall_speed)
                 # Проверяем условия для анимации победы
                 if score >= self.score_goal and not self.is_level_completed:
                     # Проверяем, установлена ли цель по собиранию линий
@@ -428,7 +439,7 @@ class Game:
                         if not self.valid_space(current_tetromino):
                             current_tetromino.y -= 1
 
-                            self.fall_speed = tmp_speed if tmp_speed else self.fall_speed
+                            self.fall_speed = self.original_fall_speed if self.original_fall_speed else self.fall_speed
                             force_sound.play()  # Звук приземления блока
                             score += self.selected_level * 5
 
@@ -448,9 +459,9 @@ class Game:
                                 score=score,
                                 level=int(self.level),
                                 available_shapes=self.available_shapes,
+                                fall_speed=self.fall_speed,
                                 grid=self.grid,
                             )
-
                             # В случае, если функция вернула какое-либо значение, обновляем переменную
                             if new_data:
                                 # Обнуляем количество фигур без бонусов
@@ -460,7 +471,7 @@ class Game:
                                 variables = {
                                     'score': score,
                                     'type_determination': self.type_determination,
-                                    'fall_time': fall_time,
+                                    'fall_speed': self.fall_speed,
                                     'available_shapes': self.available_shapes,
                                     'grid': self.grid
                                 }
@@ -471,7 +482,7 @@ class Game:
                                 variables[variable] = new_value
 
                                 # Задаем каждой из переменных значение в соответствии со значениями словаря
-                                score, self.type_determination, fall_time, self.available_shapes, self.grid = variables.values()
+                                score, self.type_determination, self.fall_speed, self.available_shapes, self.grid = variables.values()
 
                                 # Отбираем функции мгновенного действия
                                 if variable in ('score', 'grid'):
@@ -483,7 +494,11 @@ class Game:
                                         pass
 
                                 # Отбираем функцию, не зависящую от падения фигур
-                                elif variable == 'fall_time':
+                                elif variable == 'fall_speed':
+                                    self.check_bonus_timer()  # Проверяем истекшее время бонуса
+                                    if self.bonus_start_time is None:
+                                        self.bonus_start_time = time.time()  # Запускаем таймер
+
                                     # TODO: Задать таймер для определения времени действия бонуса
                                     pass
 
@@ -579,7 +594,6 @@ class Game:
 
                         if event.key == pygame.K_DOWN:
                             # Включаем ускоренное падение
-                            tmp_speed = self.fall_speed
                             self.fall_speed = accelerated_fall_speed
                             keys[pygame.K_DOWN]['pressed'] = True
                             keys[pygame.K_DOWN]['last_time'] = current_time
@@ -596,6 +610,14 @@ class Game:
 
                         if event.key == pygame.K_p or event.key == pygame.K_SPACE:  # Пауза (P)
                             self.paused = not self.paused  # Переключаем состояние паузы
+                            if self.paused:
+                                self.pause_start_time = time.time()  # Запоминаем время начала паузы
+                            else:
+                                if self.pause_start_time is not None:
+                                    pause_duration = time.time() - self.pause_start_time  # Вычисляем длительность паузы
+                                    if self.bonus_start_time is not None:
+                                        self.bonus_start_time += pause_duration  # Увеличиваем время бонуса на длительность паузы
+                                    self.pause_start_time = None  # Сбрасываем время начала паузы
 
                         if event.key == pygame.K_r:  # Нажатие R
                             self.is_level_completed = False
@@ -609,7 +631,7 @@ class Game:
                             keys[pygame.K_RIGHT]['pressed'] = False
 
                         if event.key == pygame.K_DOWN:
-                            self.fall_speed = tmp_speed
+                            self.fall_speed = self.original_fall_speed if not self.current_bonus_function else BONUS_SPEED
                             keys[pygame.K_DOWN]['pressed'] = False
 
 
@@ -617,6 +639,9 @@ class Game:
                 cleared_rows = self.clear_rows(locked_positions, game_over)
                 if not game_over and cleared_rows:
                     self.fall_speed *= 0.975  # Ускорение падения при сборке линии
+                    # Сохраняем скорость если нет бонусного действия
+                    self.original_fall_speed = self.fall_speed if (self.bonus_start_time is None
+                            and self.fall_speed != accelerated_fall_speed) else self.original_fall_speed
                     fall_time = 0  # Сбрасываем fall_time после очистки строки
                     all_points = self.points_assignment[cleared_rows - 1]
                     points = all_points // cleared_rows
