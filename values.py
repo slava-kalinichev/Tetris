@@ -104,8 +104,6 @@ LOCKED_SHAPES = 'locked_shape_chance'
 MAKE_TETRIS = 'clear_four_lines_at_once'
 POINTS_PER_LINE = 'points_per_line'
 
-BONUS_SPEED = 0.8 # Бонусная скорость
-
 # Словарь сложности уровней
 LEVEL_DIFFICULTY_SETTINGS = {
     SPEED: {
@@ -186,12 +184,14 @@ LEVEL_DIFFICULTY_SETTINGS = {
         10: (1000, 2100, 3300, 4600),
     }
 }
-PRIZE = 2000  # (* level) - бонус за пустое поле
 
 # Параметры бонусов
 MAXIMUM_BONUS_APPLY_TIMES = 7
-BONUS_POINTS = 500
+BONUS_POINTS = 200
+BONUS_SPEED = 0.8 # Бонусная скорость
 MINIMUM_SHAPES_BEFORE_NEW_BONUS = 15
+
+EMPTY_FIELD_PRIZE = 2000  # (* level) - бонус за пустое поле
 
 # Формы фигур
 # В виде словаря, чтобы удобнее пользоваться фигурами

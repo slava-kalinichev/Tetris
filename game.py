@@ -1,8 +1,6 @@
 import random
-import os
 import time
 import csv
-from values import *
 from score_animation import *
 from tetromino import Tetromino, LockedTetromino, BonusTetromino
 from shadow import Shadow
@@ -83,6 +81,7 @@ class Game:
                 self.current_bonus_function = None
 
     def generate_random_shape(self, available_shapes):
+        #return SHAPES[random.choice(['short-I-shape'])]
         return self.available_shapes[random.choice(list(available_shapes.keys()))]
 
     def generate_tetromino(self):
@@ -402,7 +401,6 @@ class Game:
             game_over = False
 
             while running:
-                print(self.fall_speed)
                 # Проверяем условия для анимации победы
                 if score >= self.score_goal and not self.is_level_completed:
                     # Проверяем, установлена ли цель по собиранию линий
@@ -491,18 +489,18 @@ class Game:
                                     self.bonus_function_used_times = 0
                                     self.current_bonus_function = None
 
-                                    if variables == 'score':
-                                        # TODO: Сделать анимацию начисления очков, начисляется level * 500
-                                        pass
+                                    if variable == 'score':
+                                        bonus_prize = self.selected_level * BONUS_POINTS
+                                        start_y = (GRID_HEIGHT // BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE // 2
+                                        start_pos = (GRID_WIDTH // 2, start_y)  # Центр строки
+                                        end_pos = (GRID_WIDTH, 20)  # Позиция счёта
+                                        self.score_animations.append(ScoreAnimation(bonus_prize, start_pos, end_pos))
 
                                 # Отбираем функцию, не зависящую от падения фигур
                                 elif variable == 'fall_speed':
                                     self.check_bonus_timer()  # Проверяем истекшее время бонуса
                                     if self.bonus_start_time is None:
                                         self.bonus_start_time = time.time()  # Запускаем таймер
-
-                                    # TODO: Задать таймер для определения времени действия бонуса
-                                    pass
 
                                 # Оставшиеся функции зависят от количества упавших фигур
                                 else:
@@ -646,31 +644,32 @@ class Game:
                             and self.fall_speed != accelerated_fall_speed) else self.original_fall_speed
                     fall_time = 0  # Сбрасываем fall_time после очистки строки
                     all_points = self.points_assignment[cleared_rows - 1]
-                    points = all_points // cleared_rows
+                    self.points = all_points // cleared_rows
 
                     # Если зачищено 4 строки, обновляем флаг
                     if cleared_rows == 4:
                         self.is_line_goal_completed = True
 
-                    # Запускаем анимацию для каждой удаленной сроки
-                    for row in range(1, cleared_rows + 1):
-                        start_y = (GRID_HEIGHT // BLOCK_SIZE - row) * BLOCK_SIZE + BLOCK_SIZE // 2
+                    # Запоминаем анимацию для каждой удаленной сроки
+                    anime_set = [i for i in range(1, cleared_rows + 1)]
+
+                    # Если поле пустое, начисляем 5000 очков
+                    self.sync_grid_with_locked_positions(locked_positions)
+                    is_field_empty = (
+                            all(all(cell == EMPTY_FIELD_IMAGE for cell in row) for row in self.grid)  # Все ячейки в grid пусты
+                            and not locked_positions  # locked_positions пуст
+                    )
+                    if is_field_empty:
+                        anime_set.append(EMPTY_FIELD_PRIZE)
+
+                    for i, row in enumerate(anime_set):
+                        start_y = (GRID_HEIGHT // BLOCK_SIZE - i) * BLOCK_SIZE + BLOCK_SIZE // 2
                         start_pos = (GRID_WIDTH // 2, start_y)  # Центр строки
                         end_pos = (GRID_WIDTH, 20)  # Позиция счёта
-                        self.score_animations.append(ScoreAnimation(points, start_pos, end_pos))
-
-                        # Если поле пустое, начисляем 5000 очков
-                        self.sync_grid_with_locked_positions(locked_positions)
-                        is_field_empty = (
-                                all(all(cell == EMPTY_FIELD_IMAGE for cell in row) for row in self.grid)  # Все ячейки в grid пусты
-                                and not locked_positions  # locked_positions пуст
-                        )
-                        if is_field_empty:
-                            # Запускаем анимацию для каждой пустого поля
-                            start_y = (GRID_HEIGHT // BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE // 2
-                            start_pos = (GRID_WIDTH // 2, start_y)  # Центр строки
-                            end_pos = (GRID_WIDTH, 20)  # Позиция счёта
-                            self.score_animations.append(ScoreAnimation(PRIZE * self.selected_level, start_pos, end_pos))
+                        if row == EMPTY_FIELD_PRIZE:
+                            self.score_animations.append(ScoreAnimation(EMPTY_FIELD_PRIZE, start_pos, end_pos))
+                        else:
+                            self.score_animations.append(ScoreAnimation(self.points, start_pos, end_pos))
 
                 # Обновляем анимации и начисляем очки
                 for animation in self.score_animations:
