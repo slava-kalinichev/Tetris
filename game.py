@@ -264,11 +264,21 @@ class Game:
 
             y += 235  # Отступ перед инструкцией
 
+        # Отображаем надпись "Minimum shapes until bonus:" и значение, если нет бонуса на экране
+        shapes_til_bonus = MINIMUM_SHAPES_BEFORE_NEW_BONUS - self.no_bonus_period + 2
+        if (not self.bonus_on_screen or shapes_til_bonus in [1, 2]) and shapes_til_bonus >= 0:
+            bonus_text = FONT_CONTROLS.render(f"MinSUB: {shapes_til_bonus}", True, WHITE)
+        else:
+            bonus_text = FONT_CONTROLS.render(f"On-screen bonus", True, (0, 255, 0))
+        if bonus_text:
+            self.screen.blit(bonus_text, (x, y))
+            y += 30  # Отступ перед следующей строкой
+
+
         if not paused:
             for line in LEVEL_GOALS:
                 text = FONT_CONTROLS.render(line, True, WHITE)
                 goal_state = None
-                #self.line_goal = True
 
                 if not self.line_goal and line == LEVEL_GOALS[2]:
                     continue
