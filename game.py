@@ -91,6 +91,8 @@ class Game:
                 not self.bonus_on_screen
                 and
                 self.bonus_function_used_times == 0
+                and
+                self.no_bonus_period >= MINIMUM_SHAPES_BEFORE_NEW_BONUS
         ):
             # Создаем бонусную фигуру с шансом 1 / 10
             if random.randint(0, 0) == 0:
@@ -572,7 +574,7 @@ class Game:
                             self.is_level_completed = 'quit'
                             return 'quit'
 
-                        if event.key == pygame.K_LEFT:
+                        if event.key == pygame.K_LEFT and not self.paused:
                             current_tetromino.x -= 1
 
                             if not self.valid_space(current_tetromino):
@@ -582,7 +584,7 @@ class Game:
                             keys[pygame.K_LEFT]['last_time'] = current_time
                             move_sound.play()  # Звук движения
 
-                        if event.key == pygame.K_RIGHT:
+                        if event.key == pygame.K_RIGHT and not self.paused:
                             current_tetromino.x += 1
 
                             if not self.valid_space(current_tetromino):
@@ -592,14 +594,14 @@ class Game:
                             keys[pygame.K_RIGHT]['last_time'] = current_time
                             move_sound.play()  # Звук движения
 
-                        if event.key == pygame.K_DOWN:
+                        if event.key == pygame.K_DOWN and not self.paused:
                             # Включаем ускоренное падение
                             self.fall_speed = accelerated_fall_speed
                             keys[pygame.K_DOWN]['pressed'] = True
                             keys[pygame.K_DOWN]['last_time'] = current_time
                             drop_sound.play()  # Звук падения
 
-                        if event.key == pygame.K_UP:
+                        if event.key == pygame.K_UP and not self.paused:
                             rotate_sound.play()  # Звук поворота
                             current_tetromino.rotate()
 
