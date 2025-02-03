@@ -162,11 +162,11 @@ class BonusTetromino(Tetromino):
 
         # Структура бонусного класса: словарь, определяющий значения для заданных бонусов
         self.DETERMINANT = {
-            0: (BONUS_IMAGES[0], prize_points),
-            1: (BONUS_IMAGES[1], remove_locked_shapes),
-            2: (BONUS_IMAGES[2], slow_fall_speed),
-            3: (BONUS_IMAGES[3], add_more_shapes),
-            4: (BONUS_IMAGES[4], apply_gravity)
+            0: (BONUS_IMAGES[0], prize_points, "Prize points"),
+            1: (BONUS_IMAGES[1], remove_locked_shapes, "No Locked"),
+            2: (BONUS_IMAGES[2], slow_fall_speed, "Slowing Down"),
+            3: (BONUS_IMAGES[3], add_more_shapes, "More shapes"),
+            4: (BONUS_IMAGES[4], apply_gravity, "Gravity")
         }
 
         # Выбор бонуса
@@ -174,11 +174,11 @@ class BonusTetromino(Tetromino):
         #self.bonus = 4
 
         # Установка бонуса и функции, которую будет выполнять бонус
-        image_path, self.function = self.DETERMINANT[self.bonus]
+        image_path, self.function, self.func_name = self.DETERMINANT[self.bonus]
         self.image = pygame.image.load(image_path)
 
         with open("data/handler.txt", "w") as file:
-            file.write(self.function.__name__)
+            file.write(self.func_name)
 
     # Отдает функцию, которая будет исполняться
     def get_function(self):
