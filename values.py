@@ -154,7 +154,7 @@ LEVEL_DIFFICULTY_SETTINGS = {
         6: 12,
         7: 10,
         8: 8,
-        9: 1,
+        9: 8,
         10: 9,
     },
 

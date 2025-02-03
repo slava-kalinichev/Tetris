@@ -84,6 +84,10 @@ class Controller:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     self.main_menu.update(event.pos)
 
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        self.state = self.STATES[1]
+
             if self.state == 'quit':
                 break
 
@@ -98,9 +102,6 @@ class Controller:
                 if event.type == pygame.QUIT:
                     self.stop()
 
-                elif event.type == pygame.K_ESCAPE:
-                    self.state = self.STATES[0]
-
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     data = self.level_map.enter_level(event)
 
@@ -110,6 +111,20 @@ class Controller:
                         for element in data:
                             if element:
                                 self.current_level = element
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.state = self.STATES[0]
+
+                    elif event.key == pygame.K_RETURN:
+                        # В случае, когда нажат энтер, ищем уровень, который открыт, но не пройден,
+                        # а если дошли до десятого, то заходим в него
+                        for level in self.level_map:
+                            if (level.is_unlocked and not level.is_completed) or level.level == '10':
+                                # Заходим в уровень, если такой найден
+                                self.current_level = level
+                                self.state = self.STATES[2]
+                                break
 
             if self.state == 'quit':
                 break
@@ -165,44 +180,6 @@ class Controller:
 
                 else:
                     self.jump_to_level = True
-
-    def manage_win_menu(self, win_menu):
-        """
-        Метод, который принимает меню, и ждет, пока игрок не нажмет какую-либо кнопку
-        :param win_menu: меню победного окна
-        :return:
-        """
-
-        # Рисуем меню и сдвигаем его хит боксы
-        x_coord = (SCREEN_WIDTH - win_menu.width) // 2
-        y_coord = (SCREEN_HEIGHT - win_menu.height) // 2
-
-        self.screen.blit(win_menu.get_surface(), (x_coord, y_coord))
-        win_menu.move_to(x_coord, y_coord)
-
-        # Обновляем экран
-        pygame.display.flip()
-
-        # Создаем переменную выбранной опции
-        option = []
-
-        # Цикл выбора
-        still_choosing = True
-        while still_choosing:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    still_choosing = False
-                    self.stop()
-                    return option
-
-                # Получаем выбранную опцию
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Записываем список всех полученных значений в переменную
-                    option = win_menu.update(event.pos, return_result=True)
-
-            # Если хотя бы одна из кнопок нажата, то список будет иметь одно значение, отличающееся от None
-            if any(option):
-                return option
 
     def manage_settings(self):
         from settings import SettingsMenu

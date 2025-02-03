@@ -1,6 +1,6 @@
-from values import *
+from pygame import Surface
 
-def gravity(locked_positions):
+def gravity(locked_positions: dict[tuple[int, int]: Surface]):
     """
     Применяет гравитацию ко всем блокам в locked_positions.
     Перемещает все блоки, висящие в воздухе, вниз до тех пор, пока они не окажутся на другом блоке или нижней границе игрового поля.
