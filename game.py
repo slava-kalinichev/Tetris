@@ -468,14 +468,13 @@ class Game:
 
                                         else:
                                             locked_positions[key] = current_tetromino.get_image()
-
                             # Выполняем бонусное действие
                             new_data = self.handle_bonus_function(
                                 score=score,
                                 level=int(self.level),
                                 available_shapes=self.available_shapes,
                                 fall_speed=self.fall_speed,
-                                grid=self.grid,
+                                locked_positions=locked_positions,
                             )
                             # В случае, если функция вернула какое-либо значение, обновляем переменную
                             if new_data:
@@ -488,7 +487,7 @@ class Game:
                                     'type_determination': self.type_determination,
                                     'fall_speed': self.fall_speed,
                                     'available_shapes': self.available_shapes,
-                                    'grid': self.grid
+                                    'locked_positions': locked_positions
                                 }
 
                                 # Распаковываем новую информацию
@@ -500,7 +499,7 @@ class Game:
                                 score, self.type_determination, self.fall_speed, self.available_shapes, self.grid = variables.values()
 
                                 # Отбираем функции мгновенного действия
-                                if variable in ('score', 'grid'):
+                                if variable in ('score', 'locked_positions'):
                                     self.bonus_function_used_times = 0
                                     self.current_bonus_function = None
 
@@ -526,6 +525,7 @@ class Game:
                                         self.current_bonus_function = None
                                         self.negotiate_bonus_effects()
 
+                            self.create_grid(locked_positions)
                             current_tetromino = next_tetromino
                             next_tetromino = self.generate_tetromino()
 

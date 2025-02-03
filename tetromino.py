@@ -156,9 +156,9 @@ class BonusTetromino(Tetromino):
 
         # Каждый квадрат, под которым не стоит другой квадрат, падает вниз.
         # За каждую зачищенную таким образом строку начисляется столько же, сколько за зачистку 1 ряда
-        def apply_gravity(grid: list[list], **kwargs) -> tuple[str, list[list]]:
-            gravity(grid, EMPTY_FIELD_IMAGE)
-            return 'grid', grid
+        def apply_gravity(locked_positions: list[list], **kwargs) -> tuple[str, list[list]]:
+            gravity(locked_positions)
+            return 'locked_positions', locked_positions
 
         # Структура бонусного класса: словарь, определяющий значения для заданных бонусов
         self.DETERMINANT = {
@@ -170,8 +170,8 @@ class BonusTetromino(Tetromino):
         }
 
         # Выбор бонуса
-        self.bonus = random.randrange(0, 5)
-        #self.bonus = 4
+        #self.bonus = random.randrange(0, 5)
+        self.bonus = 4
 
         # Установка бонуса и функции, которую будет выполнять бонус
         image_path, self.function, self.func_name = self.DETERMINANT[self.bonus]
