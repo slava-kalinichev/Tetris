@@ -1,6 +1,8 @@
 import pygame
 import os
 
+from gravity_script import gravity
+
 pygame.init()
 
 # Строковые значения
@@ -46,7 +48,7 @@ STANDARD_BUTTON_HEIGHT = 35
 # Размеры игрового поля (10x20 клеток - стандарт оригинала)
 GRID_WIDTH = 300
 GRID_HEIGHT = 600
-INFO_WIDTH = 205  # Ширина области для инструкции
+INFO_WIDTH = 210  # Ширина области для инструкции
 
 # Файлы
 RECORD_FILE = os.path.join("data", "high_score.csv")
@@ -93,6 +95,9 @@ move_sound = pygame.mixer.Sound("assets/SFX/05 Common.mp3")  # Звук движ
 rotate_sound = pygame.mixer.Sound("assets/SFX/05 Common.mp3")  # Звук поворота
 clear_sound = pygame.mixer.Sound("assets/SFX/07 Stage Clear.mp3")  # Звук удаления строки
 game_over_sound = pygame.mixer.Sound("assets/SFX/08 Game Over.mp3")  # Звук поражения
+gravity_sound = pygame.mixer.Sound("assets/SFX/09 Gravity Fall.mp3")  # Звук гравитации
+ice_sound = pygame.mixer.Sound("assets/SFX/10 Slow Down.mp3")  # Звук замерзания времени
+prize_sound = pygame.mixer.Sound("assets/SFX/11 Prize Bonus.mp3")  # Звук начисления очков бонуса
 main_sfx_sound = pygame.mixer.Sound("assets/SFX/19 SFX.mp3")  # Тема
 win_sfx_sound = pygame.mixer.Sound("assets/SFX/31 SFX.mp3")  # Тема
 
@@ -186,9 +191,10 @@ LEVEL_DIFFICULTY_SETTINGS = {
 }
 
 # Параметры бонусов
-MAXIMUM_BONUS_APPLY_TIMES = 7
+MAXIMUM_BONUS_APPLY_TIMES = 10
 BONUS_POINTS = 200
-BONUS_SPEED = 0.8 # Бонусная скорость
+BONUS_SPEED = 0.7 # Бонусная скорость
+BONUS_DURATION = 15  # Длительность бонуса в секундах
 MINIMUM_SHAPES_BEFORE_NEW_BONUS = 15
 
 EMPTY_FIELD_PRIZE = 2000  # (* level) - бонус за пустое поле
@@ -294,24 +300,32 @@ BONUS_SHAPES = {
         [1, 1, 1],
         [1, 1, 1]
     ],
-    'S-shape-2': [
-        [0, 0, 1],
-        [1, 1, 1],
-        [1, 0, 0],
+    'dot': [
+        [1]
     ],
-    'reverse-S-shape-2': [
-        [1, 0, 0],
-        [1, 1, 1],
-        [0, 0, 1]
+    'long-I-shape-2': [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
     ],
-    'big-L-shape-2': [
-        [1, 0, 0],
-        [1, 0, 0],
-        [1, 1, 1]
-    ],
-    'T-shape-2': [
+    'short-I-shape': [
+        [0, 0, 0],
         [1, 1, 1],
+        [0, 0, 0]
+    ],
+    'corner': [
+        [1, 0],
+        [1, 1]
+    ],
+    'cross': [
         [0, 1, 0],
+        [1, 1, 1],
         [0, 1, 0]
+    ],
+    'bridge': [
+        [0, 0, 0],
+        [1, 1, 1],
+        [1, 0, 1]
     ]
 }

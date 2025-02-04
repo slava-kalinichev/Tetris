@@ -6,6 +6,7 @@ from tetromino import Tetromino, LockedTetromino, BonusTetromino
 from shadow import Shadow
 from win_screen import WinScreen
 from menu_handlers import *
+from debris_animation import DebrisAnimation
 
 
 class Game:
@@ -19,6 +20,7 @@ class Game:
         self.bonus_on_screen = False
         self.no_bonus_period = 5
         self.pr_tr = self.load_settings()
+        self.time_state = None
 
         self.grid = None
 
@@ -47,6 +49,9 @@ class Game:
         self.type_determination = [Tetromino]
         self.type_determination_backup = [Tetromino]
         self.is_current_glow = False
+        self.gray_fill_start_time = None
+        self.blue_fill = False
+        self.animation_timer_state = True
 
         if locked_shapes_chance:
             self.type_determination = [Tetromino for _ in range(locked_shapes_chance)] + [LockedTetromino]
@@ -60,6 +65,11 @@ class Game:
 
         self.score_animations = []  # Список активных анимаций
 
+        # Загружаем текстуру инея
+        self.frost_texture = self.create_frost_texture()
+        self.debris_animations = []
+        self.is_debris = False
+
         # Создание экрана
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(GAME_NAME)
@@ -70,16 +80,16 @@ class Game:
         self.original_fall_speed = self.fall_speed
         self.pause_start_time = None  # Время начала паузы
         self.bonus_start_time = None  # Время начала бонуса
-        self.bonus_duration = 20  # Длительность бонуса в секундах
 
     def check_bonus_timer(self):
         if self.bonus_start_time is not None:
             current_time = time.time()
-            if current_time - self.bonus_start_time >= self.bonus_duration:
+            if current_time - self.bonus_start_time >= BONUS_DURATION:
                 self.fall_speed = self.original_fall_speed  # Возвращаем исходную скорость
                 self.bonus_start_time = None  # Сбрасываем таймер
                 self.bonus_function_used_times = 0
                 self.current_bonus_function = None
+                self.blue_fill = False
 
     def generate_random_shape(self, available_shapes):
         #return SHAPES[random.choice(['short-I-shape'])]
@@ -263,22 +273,38 @@ class Game:
                     if shape[row][col]:
                         self.screen.blit(image, (start_x + col * preview_block_size, start_y + row * preview_block_size))
 
-            y += 235  # Отступ перед инструкцией
+            y += 160  # Отступ перед инструкцией
 
-        # Отображаем надпись "Minimum shapes until bonus:" и значение, если нет бонуса на экране
-        shapes_til_bonus = MINIMUM_SHAPES_BEFORE_NEW_BONUS - self.no_bonus_period + 2
-        with open("data/handler.txt", "r") as file:
-            bonus_func = file.read()
-        if not self.bonus_on_screen and (shapes_til_bonus == MINIMUM_SHAPES_BEFORE_NEW_BONUS + 1 or shapes_til_bonus < 0):
-            bonus_text = FONT_CONTROLS.render(f"Bonus processing..", True, WHITE)
-        elif not self.bonus_on_screen or shapes_til_bonus in [1, 2]:
-            bonus_text = FONT_CONTROLS.render(f"Bonus in {shapes_til_bonus} shapes", True, (255, 255, 0))
-        else:
-            bonus_text = FONT_CONTROLS.render(f"{bonus_func}", True, (0, 255, 0))
-        if bonus_text:
-            self.screen.blit(bonus_text, (x, y))
-            y += 30  # Отступ перед следующей строкой
-
+        # Отображаем длительность эффекта бонуса
+        if self.current_bonus_function:
+            bonus_text = None
+            bonus_name = self.current_bonus_function.__name__
+            if bonus_name == 'remove_locked_shapes':
+                name_text = FONT_CONTROLS.render(f'B: No locked figures', True, (0, 255, 0))
+                self.screen.blit(name_text, (x, y - 60))
+                additional_text = FONT_CONTROLS.render(f"Until the bonus end:", True, WHITE)
+                self.screen.blit(additional_text, (x, y - 30))
+                bonus_text = FONT_CONTROLS.render(f"{MAXIMUM_BONUS_APPLY_TIMES - self.bonus_function_used_times} figures", True, WHITE)
+            elif bonus_name == 'add_more_shapes':
+                name_text = FONT_CONTROLS.render(f'B: More shapes', True, (0, 255, 0))
+                self.screen.blit(name_text, (x, y - 60))
+                additional_text = FONT_CONTROLS.render(f"Until the bonus end:", True, WHITE)
+                self.screen.blit(additional_text, (x, y - 30))
+                bonus_text = FONT_CONTROLS.render(f"{MAXIMUM_BONUS_APPLY_TIMES - self.bonus_function_used_times} figures", True, WHITE)
+            elif bonus_name == 'slow_fall_speed' and self.bonus_start_time:
+                if not self.paused:
+                    self.time_state = BONUS_DURATION - (time.time() - self.bonus_start_time)
+                if self.time_state >= 0:
+                    name_text = FONT_CONTROLS.render(f'B: Slowing Down', True, (0, 255, 0))
+                    self.screen.blit(name_text, (x, y - 60))
+                    additional_text = FONT_CONTROLS.render(f"Until the bonus end:", True, WHITE)
+                    self.screen.blit(additional_text, (x, y - 30))
+                    bonus_text = FONT_CONTROLS.render(f"{round(self.time_state)} seconds", True, WHITE)
+            else:
+                bonus_text = FONT_CONTROLS.render(f"Bonus is unlocked", True, (0, 255, 0))
+            if bonus_text:
+                self.screen.blit(bonus_text, (x, y))
+        y += 75  # Отступ перед следующей строкой
 
         if not paused:
             for line in LEVEL_GOALS:
@@ -387,6 +413,33 @@ class Game:
         """
         self.type_determination = self.type_determination_backup.copy()
         self.available_shapes = self.available_shapes_backup.copy()
+
+    def create_frost_texture(self):
+        """Создаем текстуру инея."""
+        frost_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT), pygame.SRCALPHA)
+        for y in range(0, GRID_HEIGHT, 10):
+            for x in range(0, GRID_WIDTH, 10):
+                if random.random() < 0.03:  # Вероятность появления "кристалла" инея
+                    color = (200, 230, 255, random.randint(100, 200))  # Полупрозрачный голубой цвет
+                    pygame.draw.circle(frost_surface, color, (x, y), random.randint(2, 5))
+        return frost_surface
+
+    def draw_frost_border(self):
+        """Отрисовываем иней по границам игрового поля."""
+        # Рисуем текстуру инея по границам
+        border_width = 4  # Ширина границы с инеем
+        frost_rect = pygame.Rect(0, 0, GRID_WIDTH, GRID_HEIGHT)
+        self.screen.blit(self.frost_texture, frost_rect, special_flags=pygame.BLEND_RGBA_ADD)
+
+        # Рисуем иней по краям
+        frost_border = pygame.Surface((GRID_WIDTH, GRID_HEIGHT), pygame.SRCALPHA)
+        pygame.draw.rect(frost_border, (200, 230, 255, 100), (0, 0, GRID_WIDTH, border_width))  # Верх
+        pygame.draw.rect(frost_border, (200, 230, 255, 100),
+                         (0, GRID_HEIGHT - border_width, GRID_WIDTH, border_width))  # Низ
+        pygame.draw.rect(frost_border, (200, 230, 255, 100), (0, 0, border_width, GRID_HEIGHT))  # Лево
+        pygame.draw.rect(frost_border, (200, 230, 255, 100),
+                         (GRID_WIDTH - border_width, 0, border_width, GRID_HEIGHT))  # Право
+        self.screen.blit(frost_border, (0, 0))
 
     def play(self):
         while True:
@@ -502,28 +555,32 @@ class Game:
                                 if variable in ('score', 'locked_positions'):
                                     self.bonus_function_used_times = 0
                                     self.current_bonus_function = None
-
+                                    if variable == 'locked_positions':
+                                        self.is_debris = True
                                     if variable == 'score':
                                         bonus_prize = self.selected_level * BONUS_POINTS
-                                        start_y = (GRID_HEIGHT // BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE // 2
-                                        start_pos = (GRID_WIDTH // 2, start_y)  # Центр строки
+                                        start_pos = (316, 310) # Позиция Bonus is unlocked
                                         end_pos = (GRID_WIDTH, 20)  # Позиция счёта
+                                        prize_sound.play()
                                         self.score_animations.append(ScoreAnimation(bonus_prize, start_pos, end_pos))
 
                                 # Отбираем функцию, не зависящую от падения фигур
                                 elif variable == 'fall_speed':
                                     self.check_bonus_timer()  # Проверяем истекшее время бонуса
                                     if self.bonus_start_time is None:
+                                        self.blue_fill = True  # Включаем заморозку
+                                        ice_sound.play()  # Звук замедления
                                         self.bonus_start_time = time.time()  # Запускаем таймер
 
                                 # Оставшиеся функции зависят от количества упавших фигур
                                 else:
                                     self.bonus_function_used_times += 1
 
-                                    if self.bonus_function_used_times == MAXIMUM_BONUS_APPLY_TIMES:
+                                    if self.bonus_function_used_times > MAXIMUM_BONUS_APPLY_TIMES:
                                         self.bonus_function_used_times = 0
                                         self.current_bonus_function = None
                                         self.negotiate_bonus_effects()
+                                        self.animation_timer_state = True
 
                             self.create_grid(locked_positions)
                             current_tetromino = next_tetromino
@@ -574,7 +631,6 @@ class Game:
                                     current_tetromino.y -= 1
 
                             keys[key]['last_time'] = current_time
-
 
                 # Главный обработчик нажатий на кнопки
                 for event in pygame.event.get():
@@ -650,6 +706,17 @@ class Game:
                             keys[pygame.K_DOWN]['pressed'] = False
 
 
+                # Обработка анимаций бонуса
+                if self.current_bonus_function and self.animation_timer_state:
+                    if self.current_bonus_function.__name__ in ('remove_locked_shapes', "add_more_shapes"):
+                        self.gray_fill_start_time = time.time()
+                        self.animation_timer_state = False
+
+                # Обновляем анимации обломков
+                for debris in self.debris_animations:
+                    debris.update()
+                self.debris_animations = [debris for debris in self.debris_animations if debris.is_alive()]
+
                 # Очистка строк и сброс fall_time
                 cleared_rows = self.clear_rows(locked_positions, game_over)
                 if not game_over and cleared_rows:
@@ -703,9 +770,44 @@ class Game:
                 # Создаем объект проекции
                 shadow = Shadow(current_tetromino, self.grid, self.pr_tr)
 
+                if self.is_debris:
+                    # Проверяем все блоки в самом нижнем ряду
+                    for x in range(len(self.grid[0])):
+                        if self.grid[-1][x] != EMPTY_FIELD_IMAGE:  # Если блок не пустой
+                            # Создаем анимацию обломков для каждого блока
+                            for _ in range(3):  # Количество обломков на блок
+                                debris_x = x * BLOCK_SIZE + random.randint(0, BLOCK_SIZE)
+                                debris_y = (len(self.grid) - 1) * BLOCK_SIZE
+                                color = random.choice(COLORS)  # Случайный цвет
+                                self.debris_animations.append(DebrisAnimation(debris_x, debris_y, color))
+                    gravity_sound.set_volume(3)
+                    gravity_sound.play()
+                    self.is_debris = False
+
                 # Отрисовка
                 self.screen.fill(BLACK)  # Очистка экрана
                 self.draw_field()  # Рисуем содержимое поля
+
+                # Проверяем, нужно ли закрашивать поле серым цветом
+                if self.gray_fill_start_time is not None:
+                    current_time = time.time()
+                    if current_time - self.gray_fill_start_time < 0.5:  # Закрашиваем
+                        gray_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT))
+                        gray_surface.fill(GRAY)
+                        gray_surface.set_alpha(128)  # Полупрозрачность
+                        self.screen.blit(gray_surface, (0, 0))
+                    else:
+                        self.gray_fill_start_time = None  # Сбрасываем время закрашивания
+
+                # Проверяем, нужно ли закрашивать поле синим цветом
+                if self.blue_fill and self.current_bonus_function.__name__ == 'slow_fall_speed':
+                    blue_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT))
+                    blue_surface.fill((117, 195, 255))
+                    blue_surface.set_alpha(128)  # Полупрозрачность
+                    self.screen.blit(blue_surface, (0, 0))
+                    # Рисуем эффект инея по границам
+                    self.draw_frost_border()
+
                 if not self.is_current_glow:
                     current_tetromino.draw(self.screen, False)  # Рисуем простую фигуру
                 else:
@@ -718,6 +820,9 @@ class Game:
                 # Отрисовываем активные анимации
                 for animation in self.score_animations:
                     animation.draw(self.screen)
+                # Отрисовываем анимации обломков
+                for debris in self.debris_animations:
+                    debris.draw(self.screen)
 
                 # Если игра на паузе, отображаем сообщение
                 if self.paused:
