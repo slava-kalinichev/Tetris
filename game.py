@@ -18,7 +18,7 @@ class Game:
         self.current_bonus_function = None
         self.bonus_function_used_times = 0
         self.bonus_on_screen = False
-        self.no_bonus_period = 5
+        self.no_bonus_period = 10
         self.pr_tr = self.load_settings()
         self.time_state = None
         self.option = None
@@ -45,6 +45,8 @@ class Game:
         num_shapes = LEVEL_DIFFICULTY_SETTINGS[SHAPE_COUNT][self.selected_level]
         self.available_shapes = dict(list(SHAPES.items())[:num_shapes])
         self.available_shapes_backup = self.available_shapes.copy()
+
+        self.bonus_frequency = LEVEL_DIFFICULTY_SETTINGS[BONUS_FREQUENCY][self.selected_level]
 
         locked_shapes_chance = LEVEL_DIFFICULTY_SETTINGS[LOCKED_SHAPES][self.selected_level]
         self.type_determination = [Tetromino]
@@ -97,16 +99,18 @@ class Game:
         return self.available_shapes[random.choice(list(available_shapes.keys()))]
 
     def generate_tetromino(self):
-        # Проверяем, что сейчас нет действия предыдущего бонуса, нет бонуса на экране, а также соблюдается распределение бонусов
+        # Проверяем, что сейчас нет действия предыдущего бонуса, нет бонуса на экране, а также соблюдается распределение бонусов и уровень достаточно высокий
         if (
                 not self.bonus_on_screen
                 and
                 self.bonus_function_used_times == 0
                 and
                 self.no_bonus_period >= MINIMUM_SHAPES_BEFORE_NEW_BONUS
+                and
+                int(self.level) > 3
         ):
             # Создаем бонусную фигуру с шансом 1 / 10
-            if random.randint(0, 0) == 0:
+            if random.randint(0, self.bonus_frequency) == 0:
                 self.bonus_on_screen = True
                 return BonusTetromino()
 
