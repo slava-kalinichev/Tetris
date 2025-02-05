@@ -220,6 +220,8 @@ class Game:
                 reader = csv.DictReader(file)
                 settings = next(reader, {})
                 sound_effects = settings.get('sound_effects')
+                volume = int(settings.get('volume'))
+                print(volume)
                 pr_tr = int(settings.get('transparency'))
 
                 # Устанавливаем громкость звуков
@@ -233,6 +235,22 @@ class Game:
                     game_over_sound.set_volume(0)
                     main_sfx_sound.set_volume(0)
                     win_sfx_sound.set_volume(0)
+                    gravity_sound.set_volume(0)
+                    ice_sound.set_volume(0)
+                    prize_sound.set_volume(0)
+                else:
+                    confetti_sound.set_volume(0.15 * volume)
+                    drop_sound.set_volume(0.15 * volume)
+                    force_sound.set_volume(0.15 * volume)
+                    move_sound.set_volume(0.15 * volume)
+                    rotate_sound.set_volume(0.15 * volume)
+                    clear_sound.set_volume(0.15 * volume)
+                    game_over_sound.set_volume(0.15 * volume)
+                    main_sfx_sound.set_volume(0.15 * volume)
+                    win_sfx_sound.set_volume(0.15 * volume)
+                    gravity_sound.set_volume(0.15 * volume)
+                    ice_sound.set_volume(0.15 * volume)
+                    prize_sound.set_volume(0.15 * volume)
             return pr_tr
         except FileNotFoundError:
             return 100
