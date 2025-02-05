@@ -68,8 +68,6 @@ class Game:
 
         self.score_animations = []  # Список активных анимаций
 
-        # Загружаем текстуру инея
-        self.frost_texture = self.create_frost_texture()
         self.debris_animations = []
         self.is_debris = False
 
@@ -104,9 +102,13 @@ class Game:
                 not self.bonus_on_screen
                 and
                 self.bonus_function_used_times == 0
+                and
+                self.no_bonus_period >= MINIMUM_SHAPES_BEFORE_NEW_BONUS
+                and
+                int(self.level) > 3
         ):
-            # Создаем бонусную фигуру с шансом 1 / 10
-            if random.randint(0, 0) == 0:
+            # Создаем бонусную фигуру с определённым шансом
+            if random.randint(0, self.bonus_frequency) == 0:
                 self.bonus_on_screen = True
                 return BonusTetromino()
 
@@ -433,22 +435,14 @@ class Game:
         self.type_determination = self.type_determination_backup.copy()
         self.available_shapes = self.available_shapes_backup.copy()
 
-    def create_frost_texture(self):
-        """Создаем текстуру инея."""
-        frost_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT), pygame.SRCALPHA)
-        for y in range(0, GRID_HEIGHT, 10):
-            for x in range(0, GRID_WIDTH, 10):
-                if random.random() < 0.03:  # Вероятность появления "кристалла" инея
-                    color = (200, 230, 255, random.randint(100, 200))  # Полупрозрачный голубой цвет
-                    pygame.draw.circle(frost_surface, color, (x, y), random.randint(2, 5))
-        return frost_surface
 
     def draw_frost_border(self):
         """Отрисовываем иней по границам игрового поля."""
         # Рисуем текстуру инея по границам
-        border_width = 4  # Ширина границы с инеем
+        border_width = 6  # Ширина границы с инеем
+        frost_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT), pygame.SRCALPHA)
         frost_rect = pygame.Rect(0, 0, GRID_WIDTH, GRID_HEIGHT)
-        self.screen.blit(self.frost_texture, frost_rect, special_flags=pygame.BLEND_RGBA_ADD)
+        self.screen.blit(frost_surface, frost_rect, special_flags=pygame.BLEND_RGBA_ADD)
 
         # Рисуем иней по краям
         frost_border = pygame.Surface((GRID_WIDTH, GRID_HEIGHT), pygame.SRCALPHA)
