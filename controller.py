@@ -179,12 +179,16 @@ class Controller:
 
     def manage_settings(self):
         from settings import SettingsMenu
+
         settings_menu = SettingsMenu(SCREEN_WIDTH, SCREEN_HEIGHT)
+
         while self.state == 'settings':
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.state = self.STATES[0]  # Возвращаемся в главное меню при нажатии на системный крестик
+
                 result = settings_menu.handle_event(event)
+
                 if result == 'close':
                     self.state = self.STATES[0]  # Возвращаемся в главное меню
 

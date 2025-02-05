@@ -1,3 +1,5 @@
+from pygame import K_ESCAPE
+
 from menu_handlers import *
 
 import csv
@@ -84,6 +86,13 @@ class SettingsMenu(Menu):
     def handle_event(self, event):
         if event.type == pygame.QUIT:
             return 'close'  # Закрываем окно настроек при нажатии на системный крестик
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                return self.accept_settings()
+
+            elif event.key == K_ESCAPE:
+                return 'close'
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             for button in self.buttons:
