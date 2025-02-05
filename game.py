@@ -104,13 +104,9 @@ class Game:
                 not self.bonus_on_screen
                 and
                 self.bonus_function_used_times == 0
-                and
-                self.no_bonus_period >= MINIMUM_SHAPES_BEFORE_NEW_BONUS
-                and
-                int(self.level) > 3
         ):
             # Создаем бонусную фигуру с шансом 1 / 10
-            if random.randint(0, self.bonus_frequency) == 0:
+            if random.randint(0, 0) == 0:
                 self.bonus_on_screen = True
                 return BonusTetromino()
 
@@ -221,7 +217,6 @@ class Game:
                 settings = next(reader, {})
                 sound_effects = settings.get('sound_effects')
                 volume = int(settings.get('volume'))
-                print(volume)
                 pr_tr = int(settings.get('transparency'))
 
                 # Устанавливаем громкость звуков
@@ -239,18 +234,18 @@ class Game:
                     ice_sound.set_volume(0)
                     prize_sound.set_volume(0)
                 else:
-                    confetti_sound.set_volume(0.15 * volume)
-                    drop_sound.set_volume(0.15 * volume)
-                    force_sound.set_volume(0.15 * volume)
-                    move_sound.set_volume(0.15 * volume)
-                    rotate_sound.set_volume(0.15 * volume)
-                    clear_sound.set_volume(0.15 * volume)
-                    game_over_sound.set_volume(0.15 * volume)
-                    main_sfx_sound.set_volume(0.15 * volume)
-                    win_sfx_sound.set_volume(0.15 * volume)
-                    gravity_sound.set_volume(0.15 * volume)
-                    ice_sound.set_volume(0.15 * volume)
-                    prize_sound.set_volume(0.15 * volume)
+                    confetti_sound.set_volume(0.1 * volume)
+                    drop_sound.set_volume(0.1 * volume)
+                    force_sound.set_volume(0.1 * volume)
+                    move_sound.set_volume(0.1 * volume)
+                    rotate_sound.set_volume(0.1 * volume)
+                    clear_sound.set_volume(0.1 * volume)
+                    game_over_sound.set_volume(0.1 * volume)
+                    main_sfx_sound.set_volume(0.1 * volume)
+                    win_sfx_sound.set_volume(0.1 * volume)
+                    gravity_sound.set_volume(0.1 * volume)
+                    ice_sound.set_volume(0.1 * volume)
+                    prize_sound.set_volume(0.1 * volume)
             return pr_tr
         except FileNotFoundError:
             return 100
@@ -749,7 +744,11 @@ class Game:
                     self.original_fall_speed = self.fall_speed if (self.bonus_start_time is None
                             and self.fall_speed != accelerated_fall_speed) else self.original_fall_speed
                     fall_time = 0  # Сбрасываем fall_time после очистки строки
-                    all_points = self.points_assignment[cleared_rows - 1]
+                    level_points_pos = cleared_rows - 1
+                    if self.current_bonus_function:
+                        if self.current_bonus_function.__name__ == "apply_gravity" and cleared_rows > 4:
+                            level_points_pos = 3  # Позиция если под действием гравитации будет собрано > 4 линий
+                    all_points = self.points_assignment[level_points_pos]
                     self.points = all_points // cleared_rows
 
                     # Если зачищено 4 строки, обновляем флаг
