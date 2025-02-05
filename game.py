@@ -21,6 +21,7 @@ class Game:
         self.no_bonus_period = 5
         self.pr_tr = self.load_settings()
         self.time_state = None
+        self.option = None
 
         self.grid = None
 
@@ -112,7 +113,7 @@ class Game:
         return random.choice(self.type_determination)(self.generate_random_shape(self.available_shapes))
 
     def get_completion(self):
-        return self.is_level_completed
+        return self.is_level_completed, self.option
 
     def create_grid(self, locked_positions=None):
         if locked_positions is None:
@@ -388,14 +389,15 @@ class Game:
     def win_processing(self):
         self.paused = True
         self.is_level_completed = True
-        do_core = WinScreen()
+        win_screen = WinScreen()
         win_sfx_sound.play()
-        is_quit = do_core.core(self.screen)
+        is_quit, self.option = win_screen.core(self.screen)
         win_sfx_sound.stop()
         if is_quit:
             return True
         else:
             return False
+
 
     def handle_bonus_function(self, **kwargs) -> tuple[str, any] | None:
         """
@@ -800,13 +802,14 @@ class Game:
                         self.gray_fill_start_time = None  # Сбрасываем время закрашивания
 
                 # Проверяем, нужно ли закрашивать поле синим цветом
-                if self.blue_fill and self.current_bonus_function.__name__ == 'slow_fall_speed':
-                    blue_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT))
-                    blue_surface.fill((117, 195, 255))
-                    blue_surface.set_alpha(128)  # Полупрозрачность
-                    self.screen.blit(blue_surface, (0, 0))
-                    # Рисуем эффект инея по границам
-                    self.draw_frost_border()
+                if self.blue_fill and self.current_bonus_function:
+                    if self.current_bonus_function.__name__ == 'slow_fall_speed':
+                        blue_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT))
+                        blue_surface.fill((117, 195, 255))
+                        blue_surface.set_alpha(128)  # Полупрозрачность
+                        self.screen.blit(blue_surface, (0, 0))
+                        # Рисуем эффект инея по границам
+                        self.draw_frost_border()
 
                 if not self.is_current_glow:
                     current_tetromino.draw(self.screen, False)  # Рисуем простую фигуру

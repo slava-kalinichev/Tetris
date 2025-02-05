@@ -194,7 +194,7 @@ LEVEL_DIFFICULTY_SETTINGS = {
 MAXIMUM_BONUS_APPLY_TIMES = 10
 BONUS_POINTS = 200
 BONUS_SPEED = 0.7 # Бонусная скорость
-BONUS_DURATION = 15  # Длительность бонуса в секундах
+BONUS_DURATION = 20  # Длительность бонуса в секундах
 MINIMUM_SHAPES_BEFORE_NEW_BONUS = 15
 
 EMPTY_FIELD_PRIZE = 2000  # (* level) - бонус за пустое поле

@@ -37,9 +37,9 @@ class WinScreen:
         option = self.manage_win_menu(level_win_menu)
 
         if 'continue' not in option:
-            return True
+            return True, option
         else:
-            return False
+            return False, option
 
     def manage_win_menu(self, win_menu):
         """
@@ -76,7 +76,4 @@ class WinScreen:
 
             # Если хотя бы одна из кнопок нажата, то список будет иметь одно значение, отличающееся от None
             if any(option):
-                # Запись списка нажатий на кнопки в файл
-                with open("data/handler.txt", "w") as file:
-                    file.write(str(option))
                 return option

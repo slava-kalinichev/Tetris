@@ -1,6 +1,6 @@
 import pygame
 
-from level_selection import LevelMap
+from level_selection import *
 from values import *
 from menu_handlers import Button, Menu, WinMenu
 from copy import deepcopy
@@ -151,7 +151,7 @@ class Controller:
 
             else:
                 # Вызываем игру и записываем результат в переменную
-                is_level_completed = self.current_level.start_game()
+                is_level_completed, option = self.current_level.start_game()
 
                 if is_level_completed == 'quit':
                     self.state = self.STATES[1]
@@ -159,10 +159,6 @@ class Controller:
                 elif is_level_completed:
                     self.current_level.log_csv_data()
                     self.level_map.update_csv_data()
-
-                    # Чтение списка нажатий на кнопки из файла
-                    with open("data/handler.txt", "r") as file:
-                        option = file.read()
 
                     if 'continue' in option:  # Ветвь continue не активна (можно убрать)
                         self.jump_to_level = True
