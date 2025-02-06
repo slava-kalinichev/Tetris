@@ -51,6 +51,7 @@ GRID_HEIGHT = 600
 INFO_WIDTH = 210  # Ширина области для инструкции
 
 # Файлы
+LOGO = pygame.image.load(os.path.join('assets', 'logo', 'logo.png')) # Загружаем логотип
 RECORD_FILE = os.path.join("data", "high_score.csv")
 LEVELS_FILE = os.path.join("data", "level_status.csv")
 SETTINGS_FILE = os.path.join("data", "settings.csv")
@@ -98,8 +99,15 @@ game_over_sound = pygame.mixer.Sound("assets/SFX/08 Game Over.mp3")  # Звук 
 gravity_sound = pygame.mixer.Sound("assets/SFX/09 Gravity Fall.mp3")  # Звук гравитации
 ice_sound = pygame.mixer.Sound("assets/SFX/10 Slow Down.mp3")  # Звук замерзания времени
 prize_sound = pygame.mixer.Sound("assets/SFX/11 Prize Bonus.mp3")  # Звук начисления очков бонуса
-main_sfx_sound = pygame.mixer.Sound("assets/SFX/19 SFX.mp3")  # Тема
-win_sfx_sound = pygame.mixer.Sound("assets/SFX/31 SFX.mp3")  # Тема
+error_sound = pygame.mixer.Sound("assets/SFX/12 Error.mp3")  # Звук ошибка
+main_sfx_sound = pygame.mixer.Sound("assets/SFX/Main Theme.mp3")  # Тема
+win_sfx_sound = pygame.mixer.Sound("assets/SFX/Win Theme.mp3")  # Тема
+map_sfx_sound = pygame.mixer.Sound("assets/SFX/Map Theme.mp3")  # Тема
+SOUNDS = [
+                        confetti_sound, drop_sound, force_sound, move_sound, rotate_sound,
+                        clear_sound, game_over_sound, main_sfx_sound, win_sfx_sound,
+                        gravity_sound, ice_sound, prize_sound, error_sound, map_sfx_sound
+                    ]
 
 # Параметры сложности
 SPEED = 'speed'

@@ -27,6 +27,7 @@ class Controller:
         }
 
         self.state = self.STATES[0]
+        self.last_state = self.state  # Атрибут для корректного воспроизведения звуков
         self.jump_to_level = False
 
         # Атрибуты экрана
@@ -35,24 +36,22 @@ class Controller:
 
         # Функции кнопок
         def play_button_function():
+            main_sfx_sound.stop()
             self.state = self.STATES[1]
 
         def settings_button_function():
             self.state = self.STATES[3]
 
         def quit_button_function():
+            main_sfx_sound.stop()
             self.state = self.STATES[-1]
 
         # Кнопки
-        play_button = Button('Play', play_button_function)
+        play_button = Button('Play', play_button_function, color=(34, 177, 76))
         settings_button = Button('Settings', settings_button_function)
         quit_button = Button('Quit', quit_button_function)
 
         init_buttons = [play_button, settings_button, quit_button]
-
-        # Название игры
-        # TODO: сделать красивое название картинкой
-        self.title = FONT_TITLE.render(f'Tetrix', True, WHITE)
 
         # Атрибуты меню
         self.main_menu = Menu(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -71,14 +70,23 @@ class Controller:
             # Добавляем кнопку
             self.main_menu.add_button(button, x_coord, y_coord)
 
-        self.main_menu.draw_additional_surface(self.title, SCREEN_WIDTH // 2 - self.title.get_width() // 2, 100)
+        logo = pygame.transform.scale(LOGO, (486, 264))  # Масштабируем логотип
+        self.main_menu.draw_additional_surface(
+            logo,
+            SCREEN_WIDTH // 2 - logo.get_width() // 2,
+            100
+        )
 
         self.run = True
 
     def manage_main_menu(self):
+        self.load_sound_volume()  # Обновляем громкость звуков
+        if self.last_state != self.STATES[3]:
+            main_sfx_sound.play()
         while self.state == 'main menu':
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    main_sfx_sound.stop()
                     self.stop()
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -86,7 +94,12 @@ class Controller:
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
+                        main_sfx_sound.stop()
                         self.state = self.STATES[1]
+
+                    if event.key == pygame.K_ESCAPE:
+                        main_sfx_sound.stop()
+                        self.state = self.STATES[-1]
 
             if self.state == 'quit':
                 break
@@ -97,6 +110,10 @@ class Controller:
             self.clock.tick(FPS)
 
     def manage_map_menu(self):
+        if self.last_state == self.STATES[2]:
+            map_sfx_sound.set_volume(2 * map_sfx_sound.get_volume())
+        else:
+            map_sfx_sound.play()
         while self.state == 'map':
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -106,6 +123,7 @@ class Controller:
                     data = self.level_map.enter_level(event)
 
                     if any(data):
+                        map_sfx_sound.set_volume(0.5 * map_sfx_sound.get_volume())
                         self.state = self.STATES[2]
 
                         for element in data:
@@ -114,6 +132,8 @@ class Controller:
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
+                        map_sfx_sound.stop()
+                        self.last_state = self.state
                         self.state = self.STATES[0]
 
                     elif event.key == pygame.K_RETURN:
@@ -122,6 +142,7 @@ class Controller:
                         for level in self.level_map:
                             if (level.is_unlocked and not level.is_completed) or level.level == '10':
                                 # Заходим в уровень, если такой найден
+                                map_sfx_sound.set_volume(0.5 * map_sfx_sound.get_volume())
                                 self.current_level = level
                                 self.state = self.STATES[2]
                                 break
@@ -147,6 +168,7 @@ class Controller:
 
             if not is_level_entered:
                 # Перемещаемся на карту, если нажат крестик
+                self.last_state = self.STATES[2]
                 self.state = self.STATES[1]
 
             else:
@@ -154,6 +176,7 @@ class Controller:
                 is_level_completed, option = self.current_level.start_game()
 
                 if is_level_completed == 'quit':
+                    self.last_state = self.STATES[2]
                     self.state = self.STATES[1]
 
                 elif is_level_completed:
@@ -185,15 +208,36 @@ class Controller:
         while self.state == 'settings':
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    self.last_state = self.state
                     self.state = self.STATES[0]  # Возвращаемся в главное меню при нажатии на системный крестик
 
                 result = settings_menu.handle_event(event)
 
                 if result == 'close':
+                    self.last_state = self.state
                     self.state = self.STATES[0]  # Возвращаемся в главное меню
 
             settings_menu.draw(self.screen)
             self.clock.tick(FPS)
+
+    def load_sound_volume(self):
+        """Загружает настройки из файла settings.csv и применяет их."""
+        try:
+            with open(SETTINGS_FILE, mode='r') as file:
+                reader = csv.DictReader(file)
+                new_settings = next(reader, {})
+                sound_effects = new_settings.get('sound_effects')
+                volume = int(new_settings.get('volume'))
+
+                # Устанавливаем громкость звуков
+                if sound_effects == "False":
+                    for sound in SOUNDS:
+                        sound.set_volume(0)
+                else:
+                    for sound in SOUNDS:
+                        sound.set_volume(0.1 * volume)
+        except FileNotFoundError:
+            pass
 
     def start(self):
         while self.run:

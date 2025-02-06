@@ -18,7 +18,7 @@ class LevelSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         # Расстановка уровней в матрице [[1 2 3 4 5], [6 7 8 9 10]]
-        self.rect.x = 100 * ((int(self.level) + 4) % 5) + 15
+        self.rect.x = 100 * ((int(self.level) + 4) % 5) + 18
         self.rect.y = 150 if int(self.level) <= 5 else SCREEN_HEIGHT - 225
 
     def update_image(self):
@@ -42,7 +42,7 @@ class LevelSprite(pygame.sprite.Sprite):
             if args and args[0].type == pygame.MOUSEBUTTONDOWN:
                 # Проверяем, что уровень открыт перед инициализацией игры
                 if not self.is_unlocked:
-                    # TODO: Проиграть звук попытки входа в неоткрытый уровень
+                    error_sound.play()  # Звук попытки входа в закрытый уровень
                     return None
 
                 # Возвращаем уровень, который был вызван
@@ -88,6 +88,7 @@ class LevelSprite(pygame.sprite.Sprite):
                 writer.writerow(line)
 
     def start_game(self):
+        map_sfx_sound.stop()
         level_gameplay = Game(self.level)
         level_gameplay.play()
 
@@ -107,7 +108,7 @@ class LevelSprite(pygame.sprite.Sprite):
             current_best = [line for line in reader if line[0] == self.level][0][1]
 
         # Создаем меню для окна информации
-        info_menu = Menu(info_width, info_height, color=WINDOWS_COLOR, border_width=3)
+        info_menu = Menu(info_width, info_height, color=WINDOWS_COLOR, border_width=2)
 
         '''Данные для текста: (текст, шрифт, цвет, [y-отступ], [позиция y])'''
         # Если [позиция y] указана, то y-отступ игнорируется

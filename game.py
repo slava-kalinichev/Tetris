@@ -222,31 +222,11 @@ class Game:
 
                 # Устанавливаем громкость звуков
                 if sound_effects == "False":
-                    confetti_sound.set_volume(0)
-                    drop_sound.set_volume(0)
-                    force_sound.set_volume(0)
-                    move_sound.set_volume(0)
-                    rotate_sound.set_volume(0)
-                    clear_sound.set_volume(0)
-                    game_over_sound.set_volume(0)
-                    main_sfx_sound.set_volume(0)
-                    win_sfx_sound.set_volume(0)
-                    gravity_sound.set_volume(0)
-                    ice_sound.set_volume(0)
-                    prize_sound.set_volume(0)
+                    for sound in SOUNDS:
+                        sound.set_volume(0)
                 else:
-                    confetti_sound.set_volume(0.1 * volume)
-                    drop_sound.set_volume(0.1 * volume)
-                    force_sound.set_volume(0.1 * volume)
-                    move_sound.set_volume(0.1 * volume)
-                    rotate_sound.set_volume(0.1 * volume)
-                    clear_sound.set_volume(0.1 * volume)
-                    game_over_sound.set_volume(0.1 * volume)
-                    main_sfx_sound.set_volume(0.1 * volume)
-                    win_sfx_sound.set_volume(0.1 * volume)
-                    gravity_sound.set_volume(0.1 * volume)
-                    ice_sound.set_volume(0.1 * volume)
-                    prize_sound.set_volume(0.1 * volume)
+                    for sound in SOUNDS:
+                        sound.set_volume(0.1 * volume)
             return pr_tr
         except FileNotFoundError:
             return 100
