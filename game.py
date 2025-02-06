@@ -92,8 +92,8 @@ class Game:
             return True
 
     def generate_random_shape(self, available_shapes):
-        return SHAPES[random.choice(['short-I-shape'])]
-        #return self.available_shapes[random.choice(list(available_shapes.keys()))]
+        #return SHAPES[random.choice(['short-I-shape'])]
+        return self.available_shapes[random.choice(list(available_shapes.keys()))]
 
     def generate_tetromino(self):
         # Проверяем, что сейчас нет действия предыдущего бонуса, нет бонуса на экране, а также соблюдается распределение бонусов и уровень достаточно высокий
