@@ -84,17 +84,16 @@ class Game:
 
     def check_bonus_timer(self):
         if self.bonus_start_time is not None:
-            current_time = time.time()
-            if current_time - self.bonus_start_time >= BONUS_DURATION:
-                self.fall_speed = self.original_fall_speed  # Возвращаем исходную скорость
-                self.bonus_start_time = None  # Сбрасываем таймер
-                self.bonus_function_used_times = 0
-                self.current_bonus_function = None
-                self.blue_fill = False
+            if time.time() - self.bonus_start_time >= BONUS_DURATION:
+                return False  # Останавливаем замедление
+            else:
+                return True  # Продолжаем эффект
+        else:
+            return True
 
     def generate_random_shape(self, available_shapes):
-        #return SHAPES[random.choice(['short-I-shape'])]
-        return self.available_shapes[random.choice(list(available_shapes.keys()))]
+        return SHAPES[random.choice(['short-I-shape'])]
+        #return self.available_shapes[random.choice(list(available_shapes.keys()))]
 
     def generate_tetromino(self):
         # Проверяем, что сейчас нет действия предыдущего бонуса, нет бонуса на экране, а также соблюдается распределение бонусов и уровень достаточно высокий
@@ -579,11 +578,17 @@ class Game:
 
                                 # Отбираем функцию, не зависящую от падения фигур
                                 elif variable == 'fall_speed':
-                                    self.check_bonus_timer()  # Проверяем истекшее время бонуса
+                                    is_continue = self.check_bonus_timer()  # Проверяем истекшее время бонуса
                                     if self.bonus_start_time is None:
                                         self.blue_fill = True  # Включаем заморозку
                                         ice_sound.play()  # Звук замедления
                                         self.bonus_start_time = time.time()  # Запускаем таймер
+                                    if not is_continue:
+                                        self.fall_speed = self.original_fall_speed  # Возвращаем исходную скорость
+                                        self.bonus_start_time = None  # Сбрасываем таймер
+                                        self.bonus_function_used_times = 0
+                                        self.current_bonus_function = None
+                                        self.blue_fill = False
 
                                 # Оставшиеся функции зависят от количества упавших фигур
                                 else:
@@ -759,14 +764,14 @@ class Game:
                             and not locked_positions  # locked_positions пуст
                     )
                     if is_field_empty:
-                        anime_set.append(EMPTY_FIELD_PRIZE)
+                        anime_set.append(EMPTY_FIELD_PRIZE * self.selected_level)
 
                     for i, row in enumerate(anime_set):
                         start_y = (GRID_HEIGHT // BLOCK_SIZE - i) * BLOCK_SIZE + BLOCK_SIZE // 2
                         start_pos = (GRID_WIDTH // 2, start_y)  # Центр строки
                         end_pos = (GRID_WIDTH, 20)  # Позиция счёта
-                        if row == EMPTY_FIELD_PRIZE:
-                            self.score_animations.append(ScoreAnimation(EMPTY_FIELD_PRIZE, start_pos, end_pos))
+                        if row == EMPTY_FIELD_PRIZE * self.selected_level:
+                            self.score_animations.append(ScoreAnimation(EMPTY_FIELD_PRIZE * self.selected_level, start_pos, end_pos))
                         else:
                             self.score_animations.append(ScoreAnimation(self.points, start_pos, end_pos))
 
@@ -807,8 +812,7 @@ class Game:
 
                 # Проверяем, нужно ли закрашивать поле серым цветом
                 if self.gray_fill_start_time is not None:
-                    current_time = time.time()
-                    if current_time - self.gray_fill_start_time < 0.5:  # Закрашиваем
+                    if time.time() - self.gray_fill_start_time < 0.5:  # Закрашиваем
                         gray_surface = pygame.Surface((GRID_WIDTH, GRID_HEIGHT))
                         gray_surface.fill(GRAY)
                         gray_surface.set_alpha(128)  # Полупрозрачность

@@ -171,7 +171,7 @@ class BonusTetromino(Tetromino):
 
         # Выбор бонуса
         self.bonus = random.randrange(0, 5)
-        #self.bonus = 0
+        #self.bonus = 2
 
         # Установка бонуса и функции, которую будет выполнять бонус
         image_path, self.function = self.DETERMINANT[self.bonus]
