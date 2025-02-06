@@ -29,6 +29,7 @@ class Controller:
         self.state = self.STATES[0]
         self.last_state = self.state  # Атрибут для корректного воспроизведения звуков
         self.jump_to_level = False
+        self.intentional_exit = False  # Флаг для определения точки возврата в map
 
         # Атрибуты экрана
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -110,10 +111,12 @@ class Controller:
             self.clock.tick(FPS)
 
     def manage_map_menu(self):
-        if self.last_state == self.STATES[2]:
+        if self.last_state == self.STATES[2] and not self.intentional_exit:
             map_sfx_sound.set_volume(2 * map_sfx_sound.get_volume())
         else:
             map_sfx_sound.play()
+            self.intentional_exit = False
+
         while self.state == 'map':
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -152,6 +155,7 @@ class Controller:
 
             self.screen.fill('black')
             self.level_map.draw(self.screen)
+            self.level_map.draw_additional_labels(self.screen)
             pygame.display.flip()
             self.clock.tick(FPS)
 
@@ -176,6 +180,7 @@ class Controller:
                 is_level_completed, option = self.current_level.start_game()
 
                 if is_level_completed == 'quit':
+                    self.intentional_exit = True
                     self.last_state = self.STATES[2]
                     self.state = self.STATES[1]
 
@@ -187,6 +192,7 @@ class Controller:
                         self.jump_to_level = True
 
                     elif 'main menu' in option:
+                        self.last_state = self.STATES[2]
                         self.state = self.STATES[1]
                         self.current_level = None
 

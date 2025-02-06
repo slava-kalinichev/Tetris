@@ -18,8 +18,9 @@ class LevelSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         # Расстановка уровней в матрице [[1 2 3 4 5], [6 7 8 9 10]]
-        self.rect.x = 100 * ((int(self.level) + 4) % 5) + 18
-        self.rect.y = 150 if int(self.level) <= 5 else SCREEN_HEIGHT - 225
+        self.edge_offset = 18
+        self.rect.x = 100 * ((int(self.level) + 4) % 5) + self.edge_offset
+        self.rect.y = 220 if int(self.level) <= 5 else SCREEN_HEIGHT - 225
 
     def update_image(self):
         if not self.is_unlocked:
@@ -138,7 +139,7 @@ class LevelSprite(pygame.sprite.Sprite):
 
         # Данные для кнопок: (текст, функция, ширина, высота, шрифт, цвет, позиция)
         button_data = [
-            ("Play", lambda: True, 150, 40, FONT_KEY, (0, 128, 0), (info_width // 2 - 75, info_height - 80)),
+            ("Play", lambda: True, 150, 40, FONT_KEY, (0, 128, 0), (info_width // 2 - 75, info_height - 70)),
             ("x", lambda: False, 30, 30, FONT_KEY, (255, 0, 0), (info_width - 50, 20)),
         ]
 
@@ -196,6 +197,23 @@ class LevelMap(pygame.sprite.Group):
                 is_unlocked, is_completed = map(lambda x: bool(int(x)), row[1:])
 
                 LevelSprite(self, level=level, is_unlocked=is_unlocked, is_completed=is_completed)
+
+    def draw_additional_labels(self, screen):
+        # Отрисовываем дополнительные элементы окна
+        super().draw(screen)
+
+        # Отрисовка текста "Level Map" сверху
+        text_surface = FONT_SETTINGS.render("Level Map", True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, 60))
+        screen.blit(text_surface, text_rect)
+
+        # Отрисовка текста "Select the level" между рядами
+        text_surface = FONT_KEY.render("Select the difficulty level:", True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, 120))
+        screen.blit(text_surface, text_rect)
+
+        # Рисуем границы окна карты уровней
+        pygame.draw.rect(screen, MENU_COLOR, screen.get_rect(), 5, 5)
 
     def enter_level(self, *args):
         data = []

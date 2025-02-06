@@ -10,8 +10,8 @@ GAME_NAME = 'Tetrix'
 INSTRUCTIONS = [
         "PgUp  - Rotate",
         "PgDn  - Speed Up",
-        "Home  - Move Left",
-        "End  - Move Right",
+        "Left  - Move Left",
+        "Right  - Move Right",
         "P  - Pause / Continue",  # P или пробел
         "R  - Restart",
         "Esc  - Exit"
@@ -211,6 +211,9 @@ LEVEL_DIFFICULTY_SETTINGS = {
         10: 6
     }
 }
+
+# Ускорение после собранной линии
+LINE_ACCELERATION = 0.985
 
 # Параметры бонусов
 MAXIMUM_BONUS_APPLY_TIMES = 15

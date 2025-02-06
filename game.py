@@ -725,7 +725,7 @@ class Game:
                 # Очистка строк и сброс fall_time
                 cleared_rows = self.clear_rows(locked_positions, game_over)
                 if not game_over and cleared_rows:
-                    self.fall_speed *= 0.975  # Ускорение падения при сборке линии
+                    self.fall_speed *= LINE_ACCELERATION  # Ускорение падения при сборке линии
                     # Сохраняем скорость если нет бонусного действия
                     self.original_fall_speed = self.fall_speed if (self.bonus_start_time is None
                             and self.fall_speed != accelerated_fall_speed) else self.original_fall_speed
