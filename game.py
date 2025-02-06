@@ -564,6 +564,7 @@ class Game:
                                         ice_sound.play()  # Звук замедления
                                         self.bonus_start_time = time.time()  # Запускаем таймер
                                     if not is_continue:
+                                        ice_sound.play()  # Звук замедления
                                         self.fall_speed = self.original_fall_speed  # Возвращаем исходную скорость
                                         self.bonus_start_time = None  # Сбрасываем таймер
                                         self.bonus_function_used_times = 0
@@ -700,7 +701,13 @@ class Game:
                             keys[pygame.K_RIGHT]['pressed'] = False
 
                         if event.key == pygame.K_DOWN:
-                            self.fall_speed = self.original_fall_speed if not self.current_bonus_function else BONUS_SPEED
+                            if self.current_bonus_function:
+                                if self.current_bonus_function.__name__ == "slow_fall_speed":
+                                    self.fall_speed = BONUS_SPEED
+                                else:
+                                    self.fall_speed = self.original_fall_speed
+                            else:
+                                self.fall_speed = self.original_fall_speed
                             keys[pygame.K_DOWN]['pressed'] = False
 
 
