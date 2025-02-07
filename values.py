@@ -217,7 +217,7 @@ LINE_ACCELERATION = 0.985
 
 # Параметры бонусов
 MAXIMUM_BONUS_APPLY_TIMES = 15
-BONUS_POINTS = 300
+BONUS_POINTS = 500
 BONUS_SPEED = 0.7 # Бонусная скорость
 BONUS_DURATION = 15  # Длительность бонуса в секундах
 MINIMUM_SHAPES_BEFORE_NEW_BONUS = 15

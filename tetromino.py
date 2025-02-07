@@ -119,9 +119,7 @@ class LockedTetromino(Tetromino):
 
     def rotate(self, init=False):
         if not init:
-            # TODO: добавить звук неудачного поворота (по типу удара по металлу или чего-то подобного)
-            pass
-
+            error_sound.play()  # Звук неудачной попытки повернуть фигуру
         else:
             super().rotate()
 
